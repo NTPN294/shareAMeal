@@ -29,8 +29,18 @@ app.get('/api/info', (req, res) => {
 
 //uc-201 register
 app.post('/api/user', (req, res) => {
-    let user = req.body;
+    const { name, password, email, phoneNumber } = req.body;
 
+    // Check if any required field is missing in the request body
+    if (!name || !password || !email || !phoneNumber) {
+        return res.status(400).json({
+            code: 400,
+            message: "Missing required fields",
+            missingFields: ["name", "password", "email", "phoneNumber"]
+        });
+    }
+
+    //check if user exists in the database
     const existingUser = database.find(userDB => userDB.email === user.email);
     if (existingUser) {
         res.status(400).json({
@@ -41,14 +51,18 @@ app.post('/api/user', (req, res) => {
     }
 
     id++;
-    user = {
+
+    const newUser = {
         id,
-        ...user,
+        name,
+        password,
+        email,
+        phoneNumber
     };
 
-    database.push(user);
+    database.push(newUser);
     console.log(database);
-    res.json(user);
+    res.json(newUser);
 
 });
 
@@ -92,17 +106,32 @@ app.get('/api/user/:userid', (req, res) => {
 //uc-205 update user from id
 app.put('/api/user/:userid', (req, res) => {
     const userid = req.params.userid;
-    const updatedUser = req.body;
-    const userIndex = database.findIndex(user => user.id == userid);
+    const { name, password, email, phoneNumber } = req.body;
+
+    // Check if any required field is missing in the request body
+    if (!name || !password || !email || !phoneNumber) {
+        return res.status(400).json({
+            code: 400,
+            message: "Missing required fields",
+            missingFields: ["name", "password", "email", "phoneNumber"]
+        });
+    }
+
 
     let user = database.find(user => user.id == userid);
-    if (user) {
-        user = {
-            ...user,
-            ...req.body,
+    const userIndex = database.findIndex(user => user.id == userid);
+
+    if (user) {    
+        database[userIndex] = {
+            id: userid, // Preserve the original userid
+            name,
+            password,
+            email,
+            phoneNumber
         };
-        res.json(user);
-        database[userIndex] = user;
+
+        res.json(database[userIndex]);
+
     } else {
         res.status(404).json({
             code: 404,
