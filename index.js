@@ -29,9 +29,9 @@ app.get('/api/info', (req, res) => {
 
 //uc-201 register
 app.post('/api/user', (req, res) => {
-    let newUser = req.body;
+    let user = req.body;
 
-    const existingUser = database.find(user => user.email === newUser.email);
+    const existingUser = database.find(userDB => userDB.email === user.email);
     if (existingUser) {
         res.status(400).json({
             code: 400,
