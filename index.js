@@ -11,7 +11,17 @@ const result = {
     code: 200,
     message: "hello world",
 };
+// ====================functions
 
+function isValidEmail(email) {
+    // Regular expression pattern for basic email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Test the email against the pattern and return true or false
+    return emailPattern.test(email);
+}
+
+//========================= routes
 app.get('/', (req, res) => {
     res.json(result);
 });
@@ -37,6 +47,13 @@ app.post('/api/user', (req, res) => {
             code: 400,
             message: "Missing required fields",
             missingFields: ["name", "password", "email", "phoneNumber"]
+        });
+    }
+
+    if (isValidEmail(email) === false) {
+        return res.status(400).json({
+            code: 400,
+            message: "Invalid email address",
         });
     }
 
@@ -117,6 +134,12 @@ app.put('/api/user/:userid', (req, res) => {
         });
     }
 
+    if (isValidEmail(email) === false) {
+        return res.status(400).json({
+            code: 400,
+            message: "Invalid email address",
+        });
+    }
 
     let user = database.find(user => user.id == userid);
     const userIndex = database.findIndex(user => user.id == userid);
