@@ -30,6 +30,15 @@ app.get('/api/info', (req, res) => {
 //uc-201 register
 app.post('/api/user', (req, res) => {
     let user = req.body;
+    const existingUser = database.find(user => user.email === newUser.email);
+    if (existingUser) {
+        res.status(400).json({
+            code: 400,
+            message: "User already exists",
+        });
+        return;
+    }
+
     id++;
     user = {
         id,
@@ -42,7 +51,7 @@ app.post('/api/user', (req, res) => {
 
 });
 
-//uc-202 login
+//uc-202 get users
 app.get('/api/user', (req, res) => {
     res.json(database);
 });
