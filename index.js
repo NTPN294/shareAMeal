@@ -41,7 +41,7 @@ app.post('/api/user', (req, res) => {
     }
 
     //check if user exists in the database
-    const existingUser = database.find(userDB => userDB.email === user.email);
+    const existingUser = database.find(userDB => userDB.email === email);
     if (existingUser) {
         res.status(400).json({
             code: 400,
