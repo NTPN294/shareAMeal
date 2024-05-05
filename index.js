@@ -1,7 +1,7 @@
 const express = require('express');
 
 const app = express();
-const port = process.env.port || 8080;  
+const port = process.env.port || 8080;
 
 app.use(express.json());
 let database = []
@@ -43,7 +43,7 @@ app.post('/api/user', (req, res) => {
     id++;
     user = {
         id,
-        ... user,
+        ...user,
     };
 
     database.push(user);
@@ -92,13 +92,17 @@ app.get('/api/user/:userid', (req, res) => {
 //uc-205 update user from id
 app.put('/api/user/:userid', (req, res) => {
     const userid = req.params.userid;
+    const updatedUser = req.body;
+    const userIndex = database.findIndex(user => user.id == userid);
+
     let user = database.find(user => user.id == userid);
     if (user) {
         user = {
-            ... user,
-            ... req.body,
+            ...user,
+            ...req.body,
         };
         res.json(user);
+        database[userIndex] = user;
     } else {
         res.status(404).json({
             code: 404,
@@ -120,7 +124,7 @@ app.delete('/api/user/:userid', (req, res) => {
             message: "User not found",
         });
     }
-}); 
+});
 
 app.listen(port, () => {
     console.log(`Server is running at http://${port}/`);
