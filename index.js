@@ -41,7 +41,9 @@ app.get('/api/user', (req, res) => {
 app.get('api/user?field1=:value1&field2=:value2', (req, res) => {
     const field1 = req.params.field1;
     const field2 = req.params.field2;
+
     let user = database.find(user => user.field1 == value1 && user.field2 == value2);
+
     if (user) {
         res.json(user);
     } else {
