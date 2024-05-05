@@ -38,7 +38,7 @@ app.get('/api/user', (req, res) => {
 });
 
 //uc-202 filter fields
-app.get('api/user?field1=:value1&field2=:value2', (req, res) => {
+app.get('/api/user?field1=:value1&field2=:value2', (req, res) => {
     const field1 = req.params.field1;
     const field2 = req.params.field2;
 
