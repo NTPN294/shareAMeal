@@ -60,17 +60,19 @@ app.post('/api/user', (req, res) => {
         });
     }
 
-    //validators
+    // Validators
     if (isValidEmailAddress(newUser.emailAddress) === false) {
         return res.status(400).json({
             code: 400,
-            message: "Invalid email address: Email address must be in the format 'n.lastname@domain.com' where: " +
-                "- 'n' is a single letter,\n" +
-                "- 'lastname' consists of at least two letters,\n" +
-                "- 'domain' consists of at least two letters,\n" +
-                "- 'domain extension' (e.g., 'com') contains 2 or 3 letters."
+            message: `Invalid email address: 
+            Email address must be in the format 'n.lastname@domain.com' where:
+            - 'n' is a single letter,
+            - 'lastname' consists of at least two letters,
+            - 'domain' consists of at least two letters,
+            - 'domain extension' (e.g., 'com') contains 2 or 3 letters.`,
         });
     }
+
 
 
     if (isValidPassword(newUser.password) === false) {
@@ -162,26 +164,28 @@ app.put('/api/user/:userid', (req, res) => {
     }
 
     //validators
-    if (isValidEmailAddress(newUser.emailAddress) === false) {
+    if (isValidEmailAddress(user.emailAddress) === false) {
         return res.status(400).json({
             code: 400,
-            message: "Invalid email address: Email address must be in the format 'n.lastname@domain.com' where: " +
-                "- 'n' is a single letter,\n" +
-                "- 'lastname' consists of at least two letters,\n" +
-                "- 'domain' consists of at least two letters,\n" +
-                "- 'domain extension' (e.g., 'com') contains 2 or 3 letters."
+            message: `Invalid email address: 
+            Email address must be in the format 'n.lastname@domain.com' where:
+            - 'n' is a single letter,
+            - 'lastname' consists of at least two letters,
+            - 'domain' consists of at least two letters,
+            - 'domain extension' (e.g., 'com') contains 2 or 3 letters.`,
         });
     }
 
 
-    if (isValidPassword(newUser.password) === false) {
+
+    if (isValidPassword(user.password) === false) {
         return res.status(400).json({
             code: 400,
             message: "Invalid password: Password must contain at least 8 characters, including at least 1 uppercase letter and 1 digit.",
         });
     }
 
-    if (isValidPhoneNumber(newUser.phoneNumber) === false) {
+    if (isValidPhoneNumber(user.phoneNumber) === false) {
         return res.status(400).json({
             code: 400,
             message: "Invalid phone number: Phone number must be 10 digits and start with '06', in the format '06-12345678', '06 12345678', or '0612345678'.",
