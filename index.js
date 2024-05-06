@@ -34,7 +34,7 @@ const testUsers = [
         phoneNumber: '0612345679',
         street: '456 Elm St',
         city: 'Townsville',
-        isActive: true
+        isActive: false
     }
 ];
 
