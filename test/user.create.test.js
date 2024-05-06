@@ -330,7 +330,7 @@ describe('UC-205 Updaten van usergegevens', () => {
                 firstName: "Voornaam2",
                 lastName: "Achternaam2",
                 password: "Passw0rd2",
-                emailAddress: "v.achter@example.com",
+                emailAddress: "v.achterNieuw@example.com",
                 phoneNumber: "0612345678",
                 street: "123 Main St2",
                 city: "Cityville2",
