@@ -25,7 +25,7 @@ let database = {
     ],
 
     _index: 2,
-    _delayTime: 500,
+    _delayTime: 250,
 
     getAll(callback) {
         setTimeout(() => {

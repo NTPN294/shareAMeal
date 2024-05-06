@@ -37,7 +37,7 @@ let userController = {
                     message: success.message,
                     data: success.data,
                     activeUsers: success.data.filter(user => user.isActive),
-                    inactiveUsers: success.data.filter(user => !user.isActive)
+                    inActiveUsers: success.data.filter(user => !user.isActive)
                 })
             }
         })
