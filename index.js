@@ -93,12 +93,12 @@ app.post('/api/user', (req, res) => {
     if (isValidEmailAddress(newUser.emailAddress) === false) {
         return res.status(400).json({
             code: 400,
-            message: `Invalid email address: 
-            Email address must be in the format 'n.lastname@domain.com' where:
-            - 'n' is a single letter,
-            - 'lastname' consists of at least two letters,
-            - 'domain' consists of at least two letters,
-            - 'domain extension' (e.g., 'com') contains 2 or 3 letters.`,
+            message: "Invalid email address:" + 
+            "Email address must be in the format 'n.lastname@domain.com' where:" +
+            " - 'n' is a single letter," + 
+            " - 'lastname' consists of at least two letters," +
+            " - 'domain' consists of at least two letters," +
+            " - 'domain extension' (e.g., 'com') contains 2 or 3 letters.",
         });
     }
 
@@ -138,6 +138,7 @@ app.post('/api/user', (req, res) => {
 
     database.push(newUser);
     console.log(database);
+
     res.status(201).json({
         code: 201,
         message:"User successfully created",
@@ -151,7 +152,9 @@ app.get('/api/user', (req, res) => {
     let activeUsers = database.filter(user => user.isActive);
     let inactiveUsers = database.filter(user => !user.isActive);
 
-    res.status(201).json({
+    res.status(200).json({
+        code: 200,
+        message: "List of users",
         allUsers: database,
         activeUsers: activeUsers,
         inactiveUsers: inactiveUsers
@@ -166,7 +169,10 @@ app.get('/api/user?field1=:value1&field2=:value2', (req, res) => {
     let user = database.find(user => user.field1 == value1 && user.field2 == value2);
 
     if (user) {
-        res.json(user);
+        res.status(200).json({
+            code: 200,
+            message: "User found",
+            user: user});
     } else {
         res.status(404).json({
             code: 404,
@@ -188,7 +194,10 @@ app.get('/api/user/:userid', (req, res) => {
     }
 
     if (user) {
-        res.json(user);
+        res.status(200).json({
+            code: 200,
+            message: "User found",
+            user: user});
     } else {
         res.status(404).json({
             code: 404,
@@ -215,12 +224,12 @@ app.put('/api/user/:userid', (req, res) => {
     if (isValidEmailAddress(user.emailAddress) === false) {
         return res.status(400).json({
             code: 400,
-            message: `Invalid email address: 
-            Email address must be in the format 'n.lastname@domain.com' where:
-            - 'n' is a single letter,
-            - 'lastname' consists of at least two letters,
-            - 'domain' consists of at least two letters,
-            - 'domain extension' (e.g., 'com') contains 2 or 3 letters.`,
+            message: "Invalid email address:" + 
+            "Email address must be in the format 'n.lastname@domain.com' where:" +
+            " - 'n' is a single letter," + 
+            " - 'lastname' consists of at least two letters," +
+            " - 'domain' consists of at least two letters," +
+            " - 'domain extension' (e.g., 'com') contains 2 or 3 letters.",
         });
     }
 
@@ -246,7 +255,7 @@ app.put('/api/user/:userid', (req, res) => {
 
     if (oldUser) {
         database[userIndex] = user;
-        res.json(database[userIndex]);
+        res.status(200).json(database[userIndex]);
 
     } else {
         res.status(404).json({
@@ -262,7 +271,11 @@ app.delete('/api/user/:userid', (req, res) => {
     let user = database.find(user => user.id == userid);
     if (user) {
         database = database.filter(user => user.id != userid);
-        res.json(user);
+        res.status(200).json({
+            code: 200,
+            message: "User successfully deleted",
+            user: user
+        });
     } else {
         res.status(404).json({
             code: 404,
