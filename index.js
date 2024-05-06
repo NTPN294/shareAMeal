@@ -11,6 +11,35 @@ const result = {
     code: 200,
     message: "hello world",
 };
+
+// Add two test users to the database upon server startup
+const testUsers = [
+    {
+        id: ++id,
+        firstName: 'John',
+        lastName: 'Doe',
+        password: 'Passw0rd',
+        emailAddress: 'j.doe@example.com',
+        phoneNumber: '0612345678',
+        street: '123 Main St',
+        city: 'Cityville',
+        isActive: true
+    },
+    {
+        id: ++id,
+        firstName: 'Jane',
+        lastName: 'Smith',
+        password: 'Secret123',
+        emailAddress: 'j.smith@example.com',
+        phoneNumber: '0612345679',
+        street: '456 Elm St',
+        city: 'Townsville',
+        isActive: true
+    }
+];
+
+database.push(...testUsers);
+
 // ====================functions
 
 function isValidEmailAddress(email) {
@@ -93,8 +122,8 @@ app.post('/api/user', (req, res) => {
     //check if user exists in the database
     const existingUser = database.find(userDB => userDB.email === newUser.emailAddress);
     if (existingUser) {
-        res.status(400).json({
-            code: 400,
+        res.status(403).json({
+            code: 403,
             message: "User already exists",
         });
         return;
@@ -109,13 +138,24 @@ app.post('/api/user', (req, res) => {
 
     database.push(newUser);
     console.log(database);
-    res.json(newUser);
+    res.status(201).json({
+        code: 201,
+        message:"User successfully created",
+        newUser
+    });
 
 });
 
 //uc-202 get users
 app.get('/api/user', (req, res) => {
-    res.json(database);
+    let activeUsers = database.filter(user => user.isActive);
+    let unactiveUsers = database.filter(user => !user.isActive);
+
+    res.json({
+        allUsers: database,
+        activeUsers: activeUsers,
+        inactiveUsers: inactiveUsers
+    });
 });
 
 //uc-202 filter fields
