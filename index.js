@@ -37,9 +37,12 @@ app.get('/', (req, res) => {
 app.get('/api/info', (req, res) => {
     console.log('GET /api/info')
     const info = {
-        name: 'My Nodejs Express server',
-        version: '0.0.1',
-        description: 'This is a simple Nodejs Express server'
+        status: 200,
+        message: 'Server info endpoint',
+        data: {
+            studentName: "Nick Thanh Phong Nguyen",
+            studentNumber: 2223623,
+        }
     }
     res.json(info)
 })
@@ -61,24 +64,29 @@ app.post('/api/user', (req, res) => {
     if (isValidEmailAddress(newUser.emailAddress) === false) {
         return res.status(400).json({
             code: 400,
-            message: "Invalid email address",
+            message: "Invalid email address: Email address must be in the format 'n.lastname@domain.com' where: " +
+                "- 'n' is a single letter,\n" +
+                "- 'lastname' consists of at least two letters,\n" +
+                "- 'domain' consists of at least two letters,\n" +
+                "- 'domain extension' (e.g., 'com') contains 2 or 3 letters."
         });
     }
+
 
     if (isValidPassword(newUser.password) === false) {
         return res.status(400).json({
             code: 400,
-            message: "Invalid password",
+            message: "Invalid password: Password must contain at least 8 characters, including at least 1 uppercase letter and 1 digit.",
         });
     }
 
-    if (isValidPhoneNumber(newUser.phoneNumber) === false) {    
+    if (isValidPhoneNumber(newUser.phoneNumber) === false) {
         return res.status(400).json({
             code: 400,
-            message: "Invalid phone number",
+            message: "Invalid phone number: Phone number must be 10 digits and start with '06', in the format '06-12345678', '06 12345678', or '0612345678'.",
         });
     }
-    
+
 
     //check if user exists in the database
     const existingUser = database.find(userDB => userDB.email === newUser.emailAddress);
@@ -94,7 +102,7 @@ app.post('/api/user', (req, res) => {
 
     newUser = {
         id,
-       ... newUser
+        ...newUser
     };
 
     database.push(newUser);
@@ -168,7 +176,7 @@ app.put('/api/user/:userid', (req, res) => {
         });
     }
 
-    if (isValidPhoneNumber(user.phoneNumber) === false) {    
+    if (isValidPhoneNumber(user.phoneNumber) === false) {
         return res.status(400).json({
             code: 400,
             message: "Invalid phone number",
@@ -179,7 +187,7 @@ app.put('/api/user/:userid', (req, res) => {
     let oldUser = database.find(oldUser => oldUser.id == user.id);
     const userIndex = database.findIndex(oldUser => oldUser.id == user.id);
 
-    if (oldUser) {    
+    if (oldUser) {
         database[userIndex] = user;
         res.json(database[userIndex]);
 
