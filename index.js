@@ -13,13 +13,11 @@ const result = {
 };
 // ====================functions
 
-function isValidEmail(email) {
-    // Regular expression pattern for basic email validation
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    // Test the email against the pattern and return true or false
-    return emailPattern.test(email);
-}
+import {
+    isValidEmailAddress,
+    isValidPassword,
+    isValidPhoneNumber
+} from './validators.js';
 
 //========================= routes
 app.get('/', (req, res) => {
@@ -39,26 +37,42 @@ app.get('/api/info', (req, res) => {
 
 //uc-201 register
 app.post('/api/user', (req, res) => {
-    const { name, password, email, phoneNumber } = req.body;
+    let newUser = req.body;
 
     // Check if any required field is missing in the request body
-    if (!name || !password || !email || !phoneNumber) {
+    if (!newUser.firstName || !newUser.lastName || !newUser.password || !newUser.emailAddress || !newUser.phoneNumber || !newUser.street || !newUser.city || !newUser.isActive) {
         return res.status(400).json({
             code: 400,
             message: "Missing required fields",
-            missingFields: ["name", "password", "email", "phoneNumber"]
+            requiredFields: ["firstName", "lastName", "password", "emailAddress", "phoneNumber", "street", "city", "isActive"]
         });
     }
 
-    if (isValidEmail(email) === false) {
+    //validators
+    if (isValidEmailAddress(newUser.emailAddress) === false) {
         return res.status(400).json({
             code: 400,
             message: "Invalid email address",
         });
     }
 
+    if (isValidPassword(newUser.password) === false) {
+        return res.status(400).json({
+            code: 400,
+            message: "Invalid password",
+        });
+    }
+
+    if (isValidPhoneNumber(newUser.phoneNumber) === false) {    
+        return res.status(400).json({
+            code: 400,
+            message: "Invalid phone number",
+        });
+    }
+    
+
     //check if user exists in the database
-    const existingUser = database.find(userDB => userDB.email === email);
+    const existingUser = database.find(userDB => userDB.email === newUser.emailAddress);
     if (existingUser) {
         res.status(400).json({
             code: 400,
@@ -69,12 +83,9 @@ app.post('/api/user', (req, res) => {
 
     id++;
 
-    const newUser = {
+    newUser = {
         id,
-        name,
-        password,
-        email,
-        phoneNumber
+       ... newUser
     };
 
     database.push(newUser);
@@ -122,37 +133,45 @@ app.get('/api/user/:userid', (req, res) => {
 
 //uc-205 update user from id
 app.put('/api/user/:userid', (req, res) => {
-    const userid = req.params.userid;
-    const { name, password, email, phoneNumber } = req.body;
+    let user = req.body;
 
     // Check if any required field is missing in the request body
-    if (!name || !password || !email || !phoneNumber) {
+    if (!user.firstName || !user.lastName || !user.password || !user.emailAddress || !user.phoneNumber || !user.street || !user.city || !user.isActive) {
         return res.status(400).json({
             code: 400,
             message: "Missing required fields",
-            missingFields: ["name", "password", "email", "phoneNumber"]
+            requiredFields: ["firstName", "lastName", "password", "emailAddress", "phoneNumber", "street", "city", "isActive"]
         });
     }
 
-    if (isValidEmail(email) === false) {
+    //validators
+    if (isValidEmailAddress(user.emailAddress) === false) {
         return res.status(400).json({
             code: 400,
             message: "Invalid email address",
         });
     }
 
-    let user = database.find(user => user.id == userid);
-    const userIndex = database.findIndex(user => user.id == userid);
+    if (isValidPassword(user.password) === false) {
+        return res.status(400).json({
+            code: 400,
+            message: "Invalid password",
+        });
+    }
 
-    if (user) {    
-        database[userIndex] = {
-            id: userid, // Preserve the original userid
-            name,
-            password,
-            email,
-            phoneNumber
-        };
+    if (isValidPhoneNumber(user.phoneNumber) === false) {    
+        return res.status(400).json({
+            code: 400,
+            message: "Invalid phone number",
+        });
+    }
 
+    //check if user exists in the database and update
+    let oldUser = database.find(oldUser => oldUser.id == user.id);
+    const userIndex = database.findIndex(oldUser => oldUser.id == user.id);
+
+    if (oldUser) {    
+        database[userIndex] = user;
         res.json(database[userIndex]);
 
     } else {
