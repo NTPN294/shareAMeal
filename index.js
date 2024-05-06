@@ -149,9 +149,9 @@ app.post('/api/user', (req, res) => {
 //uc-202 get users
 app.get('/api/user', (req, res) => {
     let activeUsers = database.filter(user => user.isActive);
-    let unactiveUsers = database.filter(user => !user.isActive);
+    let inactiveUsers = database.filter(user => !user.isActive);
 
-    res.json({
+    res.status(201).json({
         allUsers: database,
         activeUsers: activeUsers,
         inactiveUsers: inactiveUsers
@@ -177,8 +177,16 @@ app.get('/api/user?field1=:value1&field2=:value2', (req, res) => {
 
 //uc-204 get user from id
 app.get('/api/user/:userid', (req, res) => {
-    const userid = req.params.userid;
-    let user = database.find(user => user.id == userid);
+    const userId = req.params.userid;
+    let user = database.find(user => user.id == userId);
+
+    if (isNaN(userId)){
+        return res.status(401).json({
+            code: 401,
+            message: "Invalid user id",
+        });
+    }
+
     if (user) {
         res.json(user);
     } else {
