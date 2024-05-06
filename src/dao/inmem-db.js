@@ -43,7 +43,7 @@ let database = {
 
     add(item, callback) {
         const oldUser = this._data.find(user => user.emailAddress === item.emailAddress);
-        if (oldUser){
+        if (oldUser) {
             const error = new Error(`User with email ${item.emailAddress} already exists`);
             error.status = 403; // Set the status code to 400 for Bad Request
             callback(error, null);
@@ -76,18 +76,28 @@ let database = {
 
     update(id, updatedFields, callback) {
         setTimeout(() => {
-          
             const userIndex = this._data.findIndex(user => user.id === id);
 
-            if (userIndex !== -1) {
-                const updatedUser = { ...this._data[userIndex], ...updatedFields };
-                this._data[userIndex] = updatedUser;
-                callback(null, updatedUser);
-            } else {
+            if (userIndex === -1) {
                 const error = new Error(`User with id ${id} not found`);
-                error.status = 404; // Set the status code to 400 for Bad Request
+                error.status = 404; // Not Found
                 callback(error, null);
+                return;
             }
+
+            const currentUser = this._data[userIndex];
+            const existingUserWithUpdatedEmail = this._data.find(user => user.emailAddress === updatedFields.emailAddress);
+
+            if (existingUserWithUpdatedEmail && existingUserWithUpdatedEmail.id !== currentUser.id) {
+                const error = new Error(`Other user with email ${updatedFields.emailAddress} already exists`);
+                error.status = 403; // Forbidden
+                callback(error, null);
+                return;
+            }
+
+            const updatedUser = { ...this._data[userIndex], ...updatedFields };
+            this._data[userIndex] = updatedUser;
+            callback(null, updatedUser);
         }, this._delayTime);
     }
 
