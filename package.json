@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "npm install",
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "mocha -reporter spec test/**/*.test.js --exit"
   },
   "repository": {
     "type": "git",
@@ -18,9 +19,12 @@
   ],
   "author": "Nick T.P. Nguyen",
   "license": "ISC",
- 
   "dependencies": {
-    "body-parser": "^1.20.2",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "tracer": "^1.3.0"
+  },
+  "devDependencies": {
+    "chai": "^5.1.0",
+    "mocha": "^10.4.0"
   }
 }
