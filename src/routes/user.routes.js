@@ -6,8 +6,7 @@ const router = express.Router()
 const userController = require('../controllers/user.controller')
 const logger = require('../util/logger')
 
-// ====================functions
-
+//functions =========================================
 function isValidEmailAddress(email) {
     const emailRegex = /^[a-zA-Z]{1}\.[a-zA-Z]{2,}@([a-zA-Z]{2,})\.([a-zA-Z]{2,3})$/;
     return emailRegex.test(email);
@@ -23,9 +22,7 @@ function isValidPhoneNumber(phoneNumber) {
     return phoneRegex.test(phoneNumber);
 }
 
-//========================= routes
-
-
+// Tijdelijke functie om niet bestaande routes op te vangen =======================
 const notFound = (req, res, next) => {
     next({
         status: 404,
@@ -36,6 +33,7 @@ const notFound = (req, res, next) => {
 
 // Input validation functions for user routes
 const validateUserCreate = (req, res, next) => {
+    let newUser = req.body
     if (!newUser.firstName || !newUser.lastName || !newUser.password || !newUser.emailAddress || !newUser.phoneNumber || !newUser.street || !newUser.city || !newUser.isActive) {
         next({
             status: 400,
@@ -66,7 +64,7 @@ const validateUserCreateAssert = (req, res, next) => {
         if (!emailAddress) {
             throw new Error('Email address is missing');
         } else if (!isValidEmailAddress(emailAddress)) {
-            throw new Error('Invalid email address: j.doe@test.com format expected');
+            throw new Error('Invalid email address: j.doe@company.com format expected');
         }
 
         // Check phone number
@@ -89,6 +87,39 @@ const validateUserCreateAssert = (req, res, next) => {
     }
 }
 
+// Input validation function 2 met gebruik van assert
+const validateUserCreateChaiShould = (req, res, next) => {
+    try {
+        // Assert that all required fields exist and are of correct types
+        req.body.firstName.should.not.be.empty.and.be.a('string');
+        req.body.lastName.should.not.be.empty.and.be.a('string');
+        req.body.password.should.not.be.empty.and.be.a('string'); // Password must be at least 8 characters long
+        req.body.emailAddress.should.not.be.empty.and.be.a('string'); // Basic email format validation
+        req.body.phoneNumber.should.not.be.empty.and.be.a('string'); // Phone number format validation
+        req.body.street.should.not.be.empty.and.be.a('string');
+        req.body.city.should.not.be.empty.and.be.a('string');
+        req.body.isActive.should.be.a('boolean');
+
+        // Additional validations
+        if (!isValidPassword(req.body.password)) {
+            throw new Error('Invalid password: Password must contain at least 8 characters, including at least 1 uppercase letter and 1 digit');
+        }
+        if (!isValidEmailAddress(req.body.emailAddress)) {
+            throw new Error('Invalid email address: j.doe@company.com format expected');
+        }
+        if (!isValidPhoneNumber(req.body.phoneNumber)) {
+            throw new Error('Invalid phone number: Phone number must be in the format 0612345678');
+        }s
+        next();
+    } catch (ex) {
+        // Handle validation errors and pass them to the error handler middleware
+        next({
+            status: 400,
+            message: ex.message,
+            data: {}
+        });
+    }
+}
 
 const validateUserCreateChaiExpect = (req, res, next) => {
     try {
@@ -107,7 +138,7 @@ const validateUserCreateChaiExpect = (req, res, next) => {
             throw new Error('Invalid password: Password must contain at least 8 characters, including at least 1 uppercase letter and 1 digit');
         }
         if (!isValidEmailAddress(req.body.emailAddress)) {
-            throw new Error('Invalid email address');
+            throw new Error('Invalid email address: j.doe@company.com format expected');
         }
         if (!isValidPhoneNumber(req.body.phoneNumber)) {
             throw new Error('Invalid phone number: Phone number must be in the format 0612345678');
@@ -125,7 +156,15 @@ const validateUserCreateChaiExpect = (req, res, next) => {
     }
 }
 
+
+
+
 // Userroutes
 router.post('/api/user', validateUserCreateChaiExpect, userController.create)
 router.get('/api/user', userController.getAll)
 router.get('/api/user/:userId', userController.getById)
+
+router.put('/api/user/:userId', validateUserCreateChaiExpect, userController.update)
+router.delete('/api/user/:userId', userController.delete)
+
+module.exports = router

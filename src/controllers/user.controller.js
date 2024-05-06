@@ -10,11 +10,10 @@ let userController = {
                 return next({
                     status: error.status,
                     message: error.message,
-                    data: {}
                 })
             }
             if (success) {
-                res.status(200).json({
+                res.status(201).json({
                     status: success.status,
                     message: success.message,
                     data: success.data
@@ -30,28 +29,28 @@ let userController = {
                 return next({
                     status: error.status,
                     message: error.message,
-                    data: {}
                 })
             }
             if (success) {
                 res.status(200).json({
-                    status: 200,
+                    status: success.status,
                     message: success.message,
-                    data: success.data
+                    data: success.data,
+                    activeUsers: success.data.filter(user => user.isActive),
+                    inactiveUsers: success.data.filter(user => !user.isActive)
                 })
             }
         })
     },
 
     getById: (req, res, next) => {
-        const userId = req.params.userId
+        const userId = parseInt(req.params.userId)
         logger.trace('userController: getById', userId)
         userService.getById(userId, (error, success) => {
             if (error) {
                 return next({
                     status: error.status,
                     message: error.message,
-                    data: {}
                 })
             }
             if (success) {
@@ -62,9 +61,49 @@ let userController = {
                 })
             }
         })
+    },
+
+    update: (req, res, next) => {
+        const userId = parseInt(req.params.userId);
+        const updatedFields = req.body;
+        logger.info('Update user with ID:', userId);
+        userService.updateUser(userId, updatedFields, (error, success) => {
+            if (error) {
+                return next({
+                    status: error.status,
+                    message: error.message,
+                });
+            }
+            if (success) {
+                res.status(200).json({
+                    status: success.status,
+                    message: success.message,
+                    data: success.data
+                });
+            }
+        });
+    },
+
+    delete: (req, res, next) => {
+        const userId = parseInt(req.params.userId);
+        logger.info('Delete user with ID:', userId);
+        userService.deleteUser(userId, (error, success) => {
+            if (error) {
+                return next({
+                    status: error.status,
+                    message: error.message,
+                });
+            }
+            if (success) {
+                res.status(200).json({
+                    status: success.status,
+                    message: success.message,
+                    data: success.data
+                });
+            }
+        });
     }
 
-    // Todo: Implement the update and delete methods
 }
 
 module.exports = userController

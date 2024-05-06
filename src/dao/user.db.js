@@ -31,20 +31,6 @@ let database = [{
         }, this._delayTime)
     },
 
-    getActive(callback) {
-        setTimeout(() => {
-            const activeUsers = this._data.filter(user => user.isActive)
-            callback(null, activeUsers)
-        }, this._delayTime)
-    },
-
-    getInActive(callback) {
-        setTimeout(() => {
-            const inActiveUsers = this._data.filter(user => !user.isActive)
-            callback(null, inActiveUsers)
-        }, this._delayTime)
-    },   
-
     getById(id, callback) {
         setTimeout(() => {
             const user = this._data.find(user => user.id === id)

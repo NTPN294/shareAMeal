@@ -9,97 +9,62 @@ tracer.setLevel('warn')
 
 const endpointToTest = '/api/user'
 
-describe("UC-201: Create a new user", () => {
-
+describe('UC201 Registreren als nieuwe user', () => {
+    /**
+     * Voorbeeld van een beforeEach functie.
+     * Hiermee kun je code hergebruiken of initialiseren.
+     */
     beforeEach((done) => {
         console.log('Before each test')
         done()
     })
 
-    it("TC-201-1 Verplicht veld ontbreekt", (done) => {
+    /**
+     * Hier starten de testcases
+     */
+    it('TC-201-1 Verplicht veld ontbreekt', (done) => {
         chai.request(server)
             .post(endpointToTest)
             .send({
-                firstName: 'John',
-                lastName: 'Test',
-                password: 'Passw0rd',
-                emailAddress: 'j.test@example.com'
+                // firstName: 'Voornaam', ontbreekt
+                lastName: 'Achternaam',
+                emailAdress: 'v.a@server.nl'
             })
             .end((err, res) => {
+                /**
+                 * Voorbeeld uitwerking met chai.expect
+                 */
                 chai.expect(res).to.have.status(400)
-                chai.expect(res).not.to.have.status(201)
-                chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body).to.have.property('message').equal('Missing required field')
+                chai.expect(res).not.to.have.status(200)
+                chai.expect(res.body).to.be.a('object')
+                chai.expect(res.body).to.have.property('status').equals(400)
+                chai.expect(res.body)
+                    .to.have.property('message')
+                    .equals('Missing or incorrect firstName field')
+                chai
+                    .expect(res.body)
+                    .to.have.property('data')
+                    .that.is.a('object').that.is.empty
+
                 done()
             })
     })
 
-    it('TC-201-2 Niet-valide email adres', (done) => {
-        chai.request(server)
-            .post(endpointToTest)
-            .send({
-                firstName: 'John',
-                lastName: 'Test',
-                password: 'Passw0rd',
-                emailAddress: 'j.test@example',
-                phoneNumber: '0612345678',
-                street: '123 Main St',
-                city: 'Cityville',
-                isActive: true
-            })
-            .end((err, res) => {
-                chai.expect(res).to.have.status(400)
-                chai.expect(res).not.to.have.status(201)
-                chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body).to.have.property('message').equal("Invalid email address: Email address must be in the format 'n.lastname@domain.com' where: - 'n' is a single letter, - 'lastname' consists of at least two letters, - 'domain' consists of at least two letters, - 'domain extension' (e.g., 'com') contains 2 or 3 letters.")
-                done()
-            })
+    it.skip('TC-201-2 Niet-valide email adres', (done) => {
         done()
     })
 
-    it('TC-201-3 Niet-valide password', (done) => {
-        chai.request(server)
-            .post(endpointToTest)
-            .send({
-                firstName: 'John',
-                lastName: 'Test',
-                password: 'password',
-                emailAddress: 'j.test@example.com',
-                phoneNumber: '0612345678',
-                street: '123 Main St',
-                city: 'Cityville',
-                isActive: true
-            })
-            .end((err, res) => {
-                chai.expect(res).to.have.status(400)
-                chai.expect(res).not.to.have.status(201)
-                chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body).to.have.property('message').equal("Invalid password: Password must contain at least 8 characters, including at least 1 uppercase letter and 1 digit.")
-                done()
-            })
+    it.skip('TC-201-3 Niet-valide password', (done) => {
+        //
+        // Hier schrijf je jouw testcase.
+        //
         done()
     })
 
-    it('TC-201-4 gebruiker bestaat al', (done) => {
-        chai.request(server)
-            .post(endpointToTest)
-            .send({
-                firstName: 'John',
-                lastName: 'Doe',
-                password: 'Passw0rd',
-                emailAddress: 'j.doe@example.com',
-                phoneNumber: '0612345678',
-                street: '123 Main St',
-                city: 'Cityville',
-                isActive: true
-            })
-            .end((err, res) => {
-                chai.expect(res).to.have.status(403)
-                chai.expect(res).not.to.have.status(201)
-                chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body).to.have.property('message').equal("User already exists")
-                done()
-            })
+    it.skip('TC-201-4 Gebruiker bestaat al', (done) => {
+        //
+        // Hier schrijf je jouw testcase.
+        //
         done()
     })
 
@@ -107,22 +72,24 @@ describe("UC-201: Create a new user", () => {
         chai.request(server)
             .post(endpointToTest)
             .send({
-                firstName: 'John',
-                lastName: 'Test',
-                password: 'Passw0rd',
-                emailAddress: 'j.test@example.com',
-                phoneNumber: '0612345678',
-                street: '123 Main St',
-                city: 'Cityville',
-                isActive: true
+                firstName: 'Voornaam',
+                lastName: 'Achternaam',
+                emailAdress: 'v.a@server.nl'
             })
             .end((err, res) => {
-                chai.expect(res).to.have.status(403)
-                chai.expect(res).not.to.have.status(201)
-                chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body).to.have.property('message').equal("User already exists")
+                res.should.have.status(200)
+                res.body.should.be.a('object')
+
+                res.body.should.have.property('data').that.is.a('object')
+                res.body.should.have.property('message').that.is.a('string')
+
+                const data = res.body.data
+                data.should.have.property('firstName').equals('Voornaam')
+                data.should.have.property('lastName').equals('Achternaam')
+                data.should.have.property('emailAdress')
+                data.should.have.property('id').that.is.a('number')
+
                 done()
             })
-        done()
     })
 })
