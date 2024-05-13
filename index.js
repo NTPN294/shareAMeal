@@ -1,7 +1,6 @@
 const express = require('express')
 const userRoutes = require('./src/routes/user.routes')
 const logger = require('./src/util/logger')
-const mysql = require('./src/dao/mySql')
 
 const app = express()
 
@@ -9,13 +8,6 @@ const app = express()
 app.use(express.json())
 const port = process.env.PORT || 3000
 
-mysql.getUsers((err, data) => {
-    if (err) {
-        logger.error('Error getting users:', err)
-    } else {
-        logger.info('Users:', data)
-    }
-})
 
 // Hier komen alle routes
 app.use(userRoutes)

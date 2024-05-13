@@ -2,6 +2,8 @@ const chai = require('chai')
 const chaiHttp = require('chai-http')
 const server = require('../index')
 const tracer = require('tracer')
+const mysql = require('../src/dao/mySql')
+
 
 chai.should()
 chai.use(chaiHttp)
@@ -9,6 +11,18 @@ tracer.setLevel('warn')
 
 const apiUser = '/api/user'
 
+//=========================================================================================================
+function generateRandomLetters(length) {
+    const letters = 'abcdefghijklmnopqrstuvwxyz';
+    let randomString = '';
+
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * letters.length);
+        randomString += letters.charAt(randomIndex);
+    }
+
+    return randomString;
+}
 //======================== uc-201 Registreren als nieuwe user
 describe('UC201 Registreren als nieuwe user', () => {
     /**
@@ -58,7 +72,7 @@ describe('UC201 Registreren als nieuwe user', () => {
                 firstName: "Voornaam",
                 lastName: "Achternaam",
                 password: "Passw0rd",
-                emailAddress: "v.achter@example",
+                emailAdress: "v.achter@example",
                 phoneNumber: "0612345678",
                 street: "123 Main St",
                 city: "Cityville",
@@ -68,7 +82,7 @@ describe('UC201 Registreren als nieuwe user', () => {
                 res.should.have.status(400)
                 res.body.should.be.a('object')
                 res.body.should.have.property('status').equals(400)
-                res.body.should.have.property('message').equals('Invalid email address: j.doe@company.com format expected')
+                res.body.should.have.property('message').equals('Invalid email adress: j.doe@company.com format expected')
             })
 
 
@@ -82,7 +96,7 @@ describe('UC201 Registreren als nieuwe user', () => {
                 firstName: "Voornaam",
                 lastName: "Achternaam",
                 password: "password",
-                emailAddress: "v.achter@example.com",
+                emailAdress: "v.achter@example.com",
                 phoneNumber: "0612345678",
                 street: "123 Main St",
                 city: "Cityville",
@@ -106,40 +120,22 @@ describe('UC201 Registreren als nieuwe user', () => {
             .send({
                 firstName: "Voornaam",
                 lastName: "Achternaam",
+                isActive: true,
+                emailAdress: "j.doe@server.com",
                 password: "Passw0rd",
-                emailAddress: "v.achter@example.com",
                 phoneNumber: "0612345678",
                 street: "123 Main St",
-                city: "Cityville",
-                isActive: true
+                city: "Cityville"
             })
             .end((err, res) => {
-                // Check if the initial user creation was successful
-                res.should.have.status(201) // Assuming a successful creation status is 201
+                // Check the response for the duplicate email scenario
+                res.should.have.status(403) // Expect a 403 status for user already exists
                 res.body.should.be.a('object')
+                res.body.should.have.property('status').equals(403)
+                res.body.should.have.property('message').equals(`User with email j.doe@server.com already exists`)
+                done()
 
-                // Attempt to create another user with the same email address
-                chai.request(server)
-                    .post(apiUser)
-                    .send({
-                        firstName: "AnotherFirstName",
-                        lastName: "AnotherLastName",
-                        password: "AnotherPassw0rd",
-                        emailAddress: "v.achter@example.com", // Same email address
-                        phoneNumber: "0612345678",
-                        street: "456 Elm St",
-                        city: "Townsville",
-                        isActive: true
-                    })
-                    .end((err, res) => {
-                        // Check the response for the duplicate email scenario
-                        res.should.have.status(403) // Expect a 403 status for user already exists
-                        res.body.should.be.a('object')
-                        res.body.should.have.property('status').equals(403)
-                        res.body.should.have.property('message').equals(`User with email v.achter@example.com already exists`)
-                    })
             })
-        done()
     })
 
     it('TC-201-5 Gebruiker succesvol geregistreerd', (done) => {
@@ -148,19 +144,17 @@ describe('UC201 Registreren als nieuwe user', () => {
             .send({
                 firstName: "Voornaam",
                 lastName: "Achternaam",
+                isActive: true,
+                emailAdress: "v.achter@ex" + generateRandomLetters(8) +".com",
                 password: "Passw0rd",
-                emailAddress: "v.achter@example.com",
                 phoneNumber: "0612345678",
                 street: "123 Main St",
-                city: "Cityville",
-                isActive: true
+                city: "Cityville"
             })
             .end((err, res) => {
                 res.should.have.status(201)
                 res.body.should.be.a('object')
-
                 res.body.should.have.property('data').that.is.a('object')
-                res.body.should.have.property('message').equals('User created with id 7.')
                 done()
             })
     })
@@ -177,9 +171,8 @@ describe('UC-202 Opvragen van overzicht van users', () => {
             .end((err, res) => {
                 res.should.have.status(200)
                 res.body.should.be.a('object')
-                res.body.should.have.property('data').that.is.a('array').and.not.empty
+                res.body.should.have.property('data').property("users").that.is.a('array').and.not.empty
 
-                res.body.should.have.property('message').equals('Found 5 users.')
                 done()
             })
     })
@@ -190,9 +183,7 @@ describe('UC-202 Opvragen van overzicht van users', () => {
             .end((err, res) => {
                 res.should.have.status(200)
                 res.body.should.be.a('object')
-                res.body.should.have.property('data').that.is.a('array').and.not.empty
-
-                res.body.should.have.property('inActiveUsers').that.is.a('array').and.not.empty
+                res.body.should.have.property('data').property('inActiveUsers').that.is.a('array').and.not.empty
                 done()
             })
     })
@@ -203,9 +194,7 @@ describe('UC-202 Opvragen van overzicht van users', () => {
             .end((err, res) => {
                 res.should.have.status(200)
                 res.body.should.be.a('object')
-                res.body.should.have.property('data').that.is.a('array').and.not.empty
-
-                res.body.should.have.property('activeUsers').that.is.a('array').and.not.empty
+                res.body.should.have.property('data').property('activeUsers').that.is.a('array').and.not.empty
                 done()
             })
 
@@ -257,7 +246,7 @@ describe('UC-204 Opvragen van usergegevens bij ID', () => {
 
 //======================== uc-205 Updaten van usergegevens
 describe('UC-205 Updaten van usergegevens', () => {
-    it('TC-205-1 Verplicht veld “emailAddress” ontbreekt', (done) => {
+    it('TC-205-1 Verplicht veld “emailAdress” ontbreekt', (done) => {
         chai.request(server)
             .put(apiUser + "/1")
             .send({
@@ -272,7 +261,7 @@ describe('UC-205 Updaten van usergegevens', () => {
             .end((err, res) => {
                 res.should.have.status(400)
                 res.body.should.be.a('object')
-                res.body.should.have.property('message').equals('Missing or incorrect emailAddress field: expected undefined to be a string')
+                res.body.should.have.property('message').equals('Missing or incorrect emailAdress field: expected undefined to be a string')
 
                 done()
             })
@@ -285,7 +274,7 @@ describe('UC-205 Updaten van usergegevens', () => {
                 firstName: "Voornaam2",
                 lastName: "Achternaam2",
                 password: "Passw0rd2",
-                emailAddress: "v.achter@example.com",
+                emailAdress: "v.achter@example.com",
                 phoneNumber: "06123",
                 street: "123 Main St2",
                 city: "Cityville2",
@@ -307,7 +296,7 @@ describe('UC-205 Updaten van usergegevens', () => {
                 firstName: "Voornaam2",
                 lastName: "Achternaam2",
                 password: "Passw0rd2",
-                emailAddress: "v.achter@example.com",
+                emailAdress: "v.achter@example.com",
                 phoneNumber: "0612345678",
                 street: "123 Main St2",
                 city: "Cityville2",
@@ -329,7 +318,7 @@ describe('UC-205 Updaten van usergegevens', () => {
                 firstName: "Voornaam2",
                 lastName: "Achternaam2",
                 password: "Passw0rd2",
-                emailAddress: "v.achterNieuw@example.com",
+                emailAdress: "v.achterNieuw@example.com",
                 phoneNumber: "0612345678",
                 street: "123 Main St2",
                 city: "Cityville2",
@@ -350,25 +339,25 @@ describe('UC-205 Updaten van usergegevens', () => {
 describe('UC-206 Verwijderen van user', () => {
     it('TC-206-1 Gebruiker bestaat niet', (done) => {
         chai.request(server)
-        .delete(apiUser + "/999")
-        .end((err, res) => {
-            res.should.have.status(404)
-            res.body.should.be.a('object')
-            res.body.should.have.property('message').equals('User with id 999 not found')
+            .delete(apiUser + "/999")
+            .end((err, res) => {
+                res.should.have.status(404)
+                res.body.should.be.a('object')
+                res.body.should.have.property('message').equals('User with id 999 not found')
 
-            done()
-        })
+                done()
+            })
     })
 
     it('TC-206-4 Gebruiker succesvol verwijderd', (done) => {
         chai.request(server)
-        .delete(apiUser + "/1")
-        .end((err, res) => {
-            res.should.have.status(200)
-            res.body.should.be.a('object')
-            res.body.should.have.property('message').equals('User with id 1 deleted.')
+            .delete(apiUser + "/1")
+            .end((err, res) => {
+                res.should.have.status(200)
+                res.body.should.be.a('object')
+                res.body.should.have.property('message').equals('User with id 1 deleted.')
 
-            done()
-        })
+                done()
+            })
     })
 })

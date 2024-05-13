@@ -1,11 +1,11 @@
-const userService = require('../services/user.service')
+const mealService = require('../services/meal.service')
 const logger = require('../util/logger')
 
-let userController = {
+let mealController = {
     create: (req, res, next) => {
-        const user = req.body
-        logger.info('create user', user.firstName, user.lastName)
-        userService.create(user, (error, success) => {
+        const meal = req.body
+        logger.info('create meal', meal.name)
+        mealService.create(meal, (error, success) => {
             if (error) {
                 return next({
                     status: error.status,
@@ -24,7 +24,7 @@ let userController = {
 
     getAll: (req, res, next) => {
         logger.trace('getAll')
-        userService.getAll((error, success) => {
+        mealService.getAll((error, success) => {
             if (error) {
                 return next({
                     status: error.status,
@@ -35,20 +35,19 @@ let userController = {
                 res.status(200).json({
                     status: success.status,
                     message: success.message,
-                    data: {users: success.data,
-                        activeUsers: success.data.filter(user => user.isActive),
-                        inActiveUsers: success.data.filter(user => !user.isActive)
+                    data: {meals: success.data,
+                        activeMeals: success.data.filter(meal => meal.isActive),
+                        inActiveMeals: success.data.filter(meal => !meal.isActive)
                     }
-                   
                 })
             }
         })
     },
 
     getById: (req, res, next) => {
-        const userId = parseInt(req.params.userId)
-        logger.trace('userController: getById', userId)
-        userService.getById(userId, (error, success) => {
+        const mealId = parseInt(req.params.mealId)
+        logger.trace('mealController: getById', mealId)
+        mealService.getById(mealId, (error, success) => {
             if (error) {
                 return next({
                     status: error.status,
@@ -66,66 +65,45 @@ let userController = {
     },
 
     update: (req, res, next) => {
-        const userId = parseInt(req.params.userId);
-        const updatedFields = req.body;
-        logger.info('Update user with ID:', userId);
-        userService.updateUser(userId, updatedFields, (error, success) => {
+        const mealId = parseInt(req.params.mealId)
+        const meal = req.body
+        logger.info('update meal', mealId)
+        mealService.update(mealId, meal, (error, success) => {
             if (error) {
                 return next({
                     status: error.status,
                     message: error.message,
-                });
+                })
             }
             if (success) {
                 res.status(200).json({
                     status: success.status,
                     message: success.message,
                     data: success.data
-                });
+                })
             }
-        });
+        })
     },
 
     delete: (req, res, next) => {
-        const userId = parseInt(req.params.userId);
-        logger.info('Delete user with ID:', userId);
-        userService.deleteUser(userId, (error, success) => {
+        const mealId = parseInt(req.params.mealId)
+        logger.info('delete meal', mealId)
+        mealService.delete(mealId, (error, success) => {
             if (error) {
                 return next({
                     status: error.status,
                     message: error.message,
-                });
+                })
             }
             if (success) {
                 res.status(200).json({
                     status: success.status,
                     message: success.message,
                     data: success.data
-                });
+                })
             }
-        });
-    },
-
-    login: (req, res, next) => {
-        const user = req.body;
-        logger.info('Login user', user.emailAdress);
-        userService.login(user, (error, success) => {
-            if (error) {
-                return next({
-                    status: error.status,
-                    message: error.message,
-                });
-            }
-            if (success) {
-                res.status(200).json({
-                    status: success.status,
-                    message: success.message,
-                    data: success.data
-                });
-            }
-        });
+        })
     }
-
 }
 
-module.exports = userController
+module.exports = mealController

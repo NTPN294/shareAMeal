@@ -1,13 +1,14 @@
 const database = require('../dao/inmem-db')
 const logger = require('../util/logger')
+const mysql = require('../dao/mySql')
 
 const userService = {
     create: (user, callback) => {
-        logger.info('create user', user)   
+        logger.info('create user', user)
 
 
-        database.add(user, (err, data) => {
-       
+        database.addUser(user, (err, data) => {
+
             if (err) {
                 logger.info(
                     'error creating user: ',
@@ -24,13 +25,15 @@ const userService = {
                     message: `User created with id ${data.id}.`,
                     data: data
                 })
+                mysql.addUser(user)
             }
         })
+
     },
 
     getAll: (callback) => {
         logger.info('getAll')
-        database.getAll((err, data) => {
+        database.getAllUser((err, data) => {
             if (err) {
                 callback(err, null)
             } else {
@@ -53,7 +56,7 @@ const userService = {
             return;
         }
 
-        database.getById(userId, (err, data) => {
+        database.getByIdUser(userId, (err, data) => {
             if (err) {
                 const error = new Error(`Error fetching user with id ${userId}`);
                 error.status = 500; // Set the status code to 500 for Internal Server Error
@@ -78,7 +81,7 @@ const userService = {
 
     deleteUser: (userId, callback) => {
         logger.info(`Deleting user with id ${userId}.`);
-        database.delete(userId, (err, deletedUser) => {
+        database.deleteUser(userId, (err, deletedUser) => {
             if (err) {
                 logger.error(`Error deleting user with id ${userId}:`, err.message || 'Unknown error');
                 callback(err, null);
@@ -89,13 +92,14 @@ const userService = {
                     message: message,
                     data: deletedUser
                 });
+                mysql.deleteUser(userId)
             }
         });
     },
 
     updateUser: (userId, updatedFields, callback) => {
         logger.info(`Updating user with id ${userId}.`);
-        database.update(userId, updatedFields, (err, updatedUser) => {
+        database.updateUser(userId, updatedFields, (err, updatedUser) => {
             if (err) {
                 logger.error(`Error updating user with id ${userId}:`, err.message || 'Unknown error');
                 callback(err, null);
@@ -107,13 +111,14 @@ const userService = {
                     message: message,
                     data: updatedUser
                 });
+                mysql.updateUser(userId, updatedFields)
             }
         });
     },
 
     login: (email, password, callback) => {
         logger.info(`Logging in user with email ${email}.`);
-        database.getByEmail(email, (err, user) => {
+        database.getByEmailUser(email, (err, user) => {
             if (err) {
                 logger.error(`Error logging in user with email ${email}:`, err.message || 'Unknown error');
                 callback(err, null);
