@@ -160,6 +160,16 @@ const validateUserCreateChaiExpect = (req, res, next) => {
 
 
 // Userroutes
+router.get('/info', (req, res) => {
+    res.json({
+        studentName: 'Nick Thanh Phong Nguyen',
+        studentNumber: '2223623',
+        descripiton: "This is an API for the share a meal app."
+    })
+})
+
+router.post('/api/login',userController.login)
+
 router.post('/api/user', validateUserCreateChaiExpect, userController.create)
 router.get('/api/user', userController.getAll)
 router.get('/api/user/:userId', userController.getById)

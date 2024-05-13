@@ -109,6 +109,41 @@ const userService = {
                 });
             }
         });
+    },
+
+    login: (email, password, callback) => {
+        logger.info(`Logging in user with email ${email}.`);
+        database.getByEmail(email, (err, user) => {
+            if (err) {
+                logger.error(`Error logging in user with email ${email}:`, err.message || 'Unknown error');
+                callback(err, null);
+            } else if (!user) {
+                const message = `User with email ${email} not found.`;
+                logger.trace(message);
+                callback(null, {
+                    status: 404,
+                    message: message,
+                    data: null
+                });
+            } else if (user.password !== password) {
+                const message = `Incorrect password for user with email ${email}.`;
+                logger.trace(message);
+                callback(null, {
+                    status: 400,
+                    message: message,
+                    data: null
+                });
+            } else {
+                const message = `User with email ${email} logged in.`;
+                logger.trace(message);
+                callback(null, {
+                    status: 200,
+                    message: message,
+                    data: user
+                });
+            }
+        });
+
     }
 };
 

@@ -99,6 +99,13 @@ let database = {
             this._data[userIndex] = updatedUser;
             callback(null, updatedUser);
         }, this._delayTime);
+    },
+
+    getByEmail(emailAddress, callback) {
+        setTimeout(() => {
+            const user = this._data.find(user => user.emailAddress === emailAddress);
+            callback(null, user);
+        }, this._delayTime);
     }
 
 
