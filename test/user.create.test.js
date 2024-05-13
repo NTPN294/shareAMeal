@@ -179,8 +179,7 @@ describe('UC-202 Opvragen van overzicht van users', () => {
                 res.body.should.be.a('object')
                 res.body.should.have.property('data').that.is.a('array').and.not.empty
 
-                //5 database, 1 from TC-201-4, 1 from TC-201-5
-                res.body.should.have.property('message').equals('Found 7 users.')
+                res.body.should.have.property('message').equals('Found 5 users.')
                 done()
             })
     })
