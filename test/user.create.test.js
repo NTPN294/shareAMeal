@@ -160,7 +160,7 @@ describe('UC201 Registreren als nieuwe user', () => {
                 res.body.should.be.a('object')
 
                 res.body.should.have.property('data').that.is.a('object')
-                res.body.should.have.property('message').equals('User created with id 3.')
+                res.body.should.have.property('message').equals('User created with id 6.')
                 done()
             })
     })
@@ -180,7 +180,7 @@ describe('UC-202 Opvragen van overzicht van users', () => {
                 res.body.should.have.property('data').that.is.a('array').and.not.empty
 
                 //2 hardcoded, 1 from TC-201-4, 1 from TC-201-5
-                res.body.should.have.property('message').equals('Found 4 users.')
+                res.body.should.have.property('message').equals('Found 7 users.')
                 done()
             })
     })
