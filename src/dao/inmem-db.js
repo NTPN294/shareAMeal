@@ -1,6 +1,6 @@
 let database = {
     _data: [{}],
-    _index: 5,
+    _index: 6,
     _delayTime: 250,
 
     getAll(callback) {

@@ -1,7 +1,6 @@
 const mysql = require('mysql');
 const logger = require('../util/logger');
 const database2 = require('../dao/inmem-db');
-const { get } = require('../..');
 
 
 const host = process.env.DB_HOST || "db-mysql-ams3-46626-do-user-8155278-0.b.db.ondigitalocean.com";
@@ -49,7 +48,7 @@ function getUsers(callback) {
               firstName: row.firstName,
               lastName: row.lastName,
               isActive: row.isActive,
-              emailAddress: row.emailAddress,
+              emailAddress: row.emailAdress,
               password: row.password,
               phoneNumber: row.phoneNumber,
               roles: row.roles,
