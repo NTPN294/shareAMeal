@@ -172,33 +172,6 @@ function updateUser(userId, updatedFields) {
   });
 }
 
-function deleteLatestId() {
-  pool.getConnection((err, connection) => {
-    if (err) {
-      logger.error('Error connecting to MySQL:', err);
-      return;
-    }
-    logger.info('Connected to MySQL as ID:', connection.threadId);
-
-    const query = 'DELETE FROM user where id = (SELECT MAX(id) FROM user)';
-    // Execute the SQL query
-    connection.query(query, (err, results) => {
-      // Release the connection back to the pool
-      connection.release();
-
-      if (err) {
-        logger.error('Error executing MySQL query:', err);
-        callback(err);
-        return;
-      }
-
-      // Log the inserted user data
-      logger.info('User deleted successfully:', user);
-
-    });
-  });
-}
-
 //============================================================  
 //meals
 function getMeals(callback) {
@@ -236,7 +209,7 @@ function getMeals(callback) {
         maxAmountOfParticipants: row.maxAmountOfParticipants,
         price: row.price,
         imageUrl: row.imageUrl,
-        cookID: row.cookID,
+        cookId: row.cookId,
         createDate: row.createDate,
         allergenes: row.allergenes,
         updateDate: row.updateDate,
@@ -251,6 +224,129 @@ function getMeals(callback) {
     });
   });
 }
-module.exports = { getUsers, addUser, deleteUser,updateUser,deleteLatestId, getMeals };
+
+function addMeal(meal){
+    // Get a connection from the pool
+    pool.getConnection((err, connection) => {
+      if (err) {
+        logger.error('Error connecting to MySQL:', err);
+        callback(err);
+        return;
+      }  
+      // Execute a SELECT query to retrieve data from a table
+      const createDate = new Date(meal.createDate).toISOString().slice(0, 19).replace('T', ' ');
+
+      const query = 'INSERT INTO meal (name, description, isActive, isVega, isVegan, isToTakeHome, dateTime, maxAmountOfParticipants, price, imageUrl, cookID, createDate, allergenes, updateDate) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+      const values = [
+        meal.name,
+        meal.description,
+        meal.isActive,
+        meal.isVega,
+        meal.isVegan,
+        meal.isToTakeHome,
+        new Date(meal.dateTime),
+        meal.maxAmountOfParticipants,
+        meal.price,
+        meal.imageUrl,
+        meal.cookID,
+        meal.createDate,
+        meal.allergenes,
+        meal.updateDate
+      ];
+      // Execute the SQL query
+      connection.query(query, values, (err, results) => {
+        // Release the connection back to the pool
+        connection.release();
+  
+        if (err) {
+          logger.error('Error executing MySQL query:', err);
+          callback(err);
+          return;
+        }
+  
+        // Log the inserted user data
+        logger.info('Meal inserted successfully:', user);
+  
+      });
+    });
+}
+
+function updateMeal(mealId, updatedFields){
+    // Get a connection from the pool
+    pool.getConnection((err, connection) => {
+      if (err) {
+        logger.error('Error connecting to MySQL:', err);
+        return;
+      }
+      logger.info('Connected to MySQL as ID:', connection.threadId);
+  
+      const query = 'UPDATE meal SET name = ?, description = ?, isActive = ?, isVega = ?, isVegan = ?, isToTakeHome = ?, dateTime = ?, maxAmountOfParticipants = ?, price = ?, imageUrl = ?, cookID = ?, createDate = ?, allergenes = ?, updateDate = ? WHERE id = ?';
+      const values = [
+        updatedFields.name,
+        updatedFields.description,
+        updatedFields.isActive,
+        updatedFields.isVega,
+        updatedFields.isVegan,
+        updatedFields.isToTakeHome,
+        updatedFields.dateTime,
+        updatedFields.maxAmountOfParticipants,
+        updatedFields.price,
+        updatedFields.imageUrl,
+        updatedFields.cookID,
+        updatedFields.createDate,
+        updatedFields.allergenes,
+        updatedFields.updateDate,
+        mealId
+      ];
+      // Execute the SQL query
+      connection.query(query, values, (err, results) => {
+        // Release the connection back to the pool
+        connection.release();
+  
+        if (err) {
+          logger.error('Error executing MySQL query:', err);
+          callback(err);
+          return;
+        }
+  
+        // Log the inserted user data
+        logger.info('Meal updated successfully:', user);
+  
+      });
+    });
+}
+
+function deleteMeal(mealId){
+    pool.getConnection((err, connection) => {
+      if (err) {
+        logger.error('Error connecting to MySQL:', err);
+        return;
+      }
+      logger.info('Connected to MySQL as ID:', connection.threadId);
+  
+      const query = 'DELETE FROM meal where id = ?';
+      const values = [
+        mealId
+      ];
+      // Execute the SQL query
+      connection.query(query, values, (err, results) => {
+        // Release the connection back to the pool
+        connection.release();
+  
+        if (err) {
+          logger.error('Error executing MySQL query:', err);
+          callback(err);
+          return;
+        }
+  
+        // Log the inserted user data
+        logger.info('Meal deleted successfully:', user);
+  
+      });
+    });
+  }
+
+//===============================================
+module.exports = { getUsers, addUser, deleteUser,updateUser, getMeals,addMeal,updateMeal,deleteMeal };
 
 

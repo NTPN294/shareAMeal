@@ -1,6 +1,6 @@
-const { get } = require('../..')
 const database = require('../dao/inmem-db')
 const logger = require('../util/logger')
+const mysql = require('../dao/mySql')
 
 const mealService = {
     create:(meal, callback) => {
@@ -23,6 +23,7 @@ const mealService = {
                     message: `Meal created with id ${data.id}.`,
                     data: data
                 })
+                mysql.addMeal(meal)
             }
         })
     },
@@ -105,10 +106,11 @@ const mealService = {
                 message: `Deleted meal with id ${mealId}.`,
                 data: data
             })
+            mysql.deleteMeal(mealId)
         })
     },
 
-    update:(mealId, updatedFields, callback) => {
+    updateMeal:(mealId, updatedFields, callback) => {
         logger.info(`update meal with id ${mealId}`)
 
         if (isNaN(mealId)) {
@@ -138,6 +140,7 @@ const mealService = {
                 message: `Updated meal with id ${mealId}.`,
                 data: data
             })
+            mysql.updateMeal(mealId, updatedFields)
         })
     }
 }

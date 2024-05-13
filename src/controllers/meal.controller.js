@@ -88,7 +88,7 @@ let mealController = {
     delete: (req, res, next) => {
         const mealId = parseInt(req.params.mealId)
         logger.info('delete meal', mealId)
-        mealService.delete(mealId, (error, success) => {
+        mealService.deleteMeal(mealId, (error, success) => {
             if (error) {
                 return next({
                     status: error.status,

@@ -120,10 +120,10 @@ router.put('/api/user/:userId',refreshData, validateUserCreateChaiExpect, userCo
 router.delete('/api/user/:userId',refreshData, userController.delete)
 
 //========================================
-router.post('/api/meal', mealController.create)
-router.get('/api/meal', mealController.getAll)
-router.get('/api/meal/:mealId', mealController.getById)
-router.put('/api/meal/:mealId', mealController.update)
-router.delete('/api/meal/:mealId', mealController.delete)
+router.post('/api/meal',refreshData, mealController.create)
+router.get('/api/meal',refreshData, mealController.getAll)
+router.get('/api/meal/:mealId',refreshData, mealController.getById)
+router.put('/api/meal/:mealId',refreshData, mealController.update)
+router.delete('/api/meal/:mealId',refreshData, mealController.delete)
 
 module.exports = router
