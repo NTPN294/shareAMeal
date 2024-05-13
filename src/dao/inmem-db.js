@@ -1,30 +1,7 @@
 let database = {
-    _data: [
-        {
-            id: 0,
-            firstName: 'John',
-            lastName: 'Doe',
-            password: 'Passw0rd',
-            emailAddress: 'j.doe@example.com',
-            phoneNumber: '0612345678',
-            street: '123 Main St',
-            city: 'Cityville',
-            isActive: true
-        },
-        {
-            id: 1,
-            firstName: 'Jane',
-            lastName: 'Smith',
-            password: 'Secret123',
-            emailAddress: 'j.smith@example.com',
-            phoneNumber: '0612345679',
-            street: '456 Elm St',
-            city: 'Townsville',
-            isActive: false
-        }
-    ],
+    _data: [{}],
 
-    _index: 2,
+    _index: 0,
     _delayTime: 250,
 
     getAll(callback) {

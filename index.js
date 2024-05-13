@@ -1,23 +1,20 @@
 const express = require('express')
 const userRoutes = require('./src/routes/user.routes')
 const logger = require('./src/util/logger')
+const mysql = require('./src/dao/mySql')
 
 const app = express()
 
 // express.json zorgt dat we de body van een request kunnen lezen
 app.use(express.json())
-
 const port = process.env.PORT || 3000
 
-// Dit is een voorbeeld van een simpele route
-app.get('/api/info', (req, res) => {
-    console.log('GET /api/info')
-    const info = {
-        name: 'My Nodejs Express server',
-        version: '0.0.1',
-        description: 'This is a simple Nodejs Express server'
+mysql.getUsers((err, data) => {
+    if (err) {
+        logger.error('Error getting users:', err)
+    } else {
+        logger.info('Users:', data)
     }
-    res.json(info)
 })
 
 // Hier komen alle routes

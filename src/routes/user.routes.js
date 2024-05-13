@@ -160,7 +160,7 @@ const validateUserCreateChaiExpect = (req, res, next) => {
 
 
 // Userroutes
-router.get('/info', (req, res) => {
+router.get('/api/info', (req, res) => {
     res.json({
         studentName: 'Nick Thanh Phong Nguyen',
         studentNumber: '2223623',
