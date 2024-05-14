@@ -7,7 +7,10 @@ let mealController = {
     create: (req, res, next) => {
         const token = req.headers.authorization;
         if (!token) {
-            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+            return res.status(401).json({
+                status: 401,
+                error: 'Unauthorized: Missing token'
+            });
         }
         const cookId = jwtUtil.getUserId(token, res);
 
@@ -33,7 +36,10 @@ let mealController = {
     getAll: (req, res, next) => {
         const token = req.headers.authorization;
         if (!token) {
-            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+            return res.status(401).json({
+                status: 401,
+                error: 'Unauthorized: Missing token'
+            });
         }
 
         logger.trace('getAll')
@@ -61,7 +67,10 @@ let mealController = {
     getById: (req, res, next) => {
         const token = req.headers.authorization;
         if (!token) {
-            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+            return res.status(401).json({
+                status: 401,
+                error: 'Unauthorized: Missing token'
+            });
         }
 
         const mealId = parseInt(req.params.mealId)
@@ -86,7 +95,10 @@ let mealController = {
     update: (req, res, next) => {
         const token = req.headers.authorization;
         if (!token) {
-            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+            return res.status(401).json({
+                status: 401,
+                error: 'Unauthorized: Missing token'
+            });
         }
         const mealId = parseInt(req.params.mealId)
         let oldMeal = database._data.meals.find(meal => meal.id === mealId)
@@ -94,7 +106,10 @@ let mealController = {
 
         if (oldMeal !== undefined) {
             if (oldMeal.cookId !== userId) {
-                return res.status(401).json({ error: 'Unauthorized: Not the cook of this meal' });
+                return res.status(401).json({
+                    status: 401,
+                    error: 'Unauthorized: Not the cook of this meal'
+                });
             }
         }
 
@@ -122,7 +137,10 @@ let mealController = {
     delete: (req, res, next) => {
         const token = req.headers.authorization;
         if (!token) {
-            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+            return res.status(401).json({
+                status: 401,
+                error: 'Unauthorized: Missing token'
+            });
         }
 
         const mealId = parseInt(req.params.mealId)
@@ -131,7 +149,10 @@ let mealController = {
 
         if (oldMeal !== undefined) {
             if (oldMeal.cookId !== userId) {
-                return res.status(401).json({ error: 'Unauthorized: Not the cook of this meal' });
+                return res.status(401).json({
+                    status: 401,
+                    error: 'Unauthorized: Not the cook of this meal'
+                });
             }
         }
 

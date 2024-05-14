@@ -26,7 +26,10 @@ let userController = {
     getAll: (req, res, next) => {
         const token = req.headers.authorization;
         if (!token) {
-            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+            return res.status(401).json({
+                status: 401,
+                error: 'Unauthorized: Missing token'
+            });
         }
 
         // Authenticate user before proceeding to retrieve all users
@@ -57,7 +60,10 @@ let userController = {
 
     getById: (req, res, next) => {
         if (!req.headers.authorization) {
-            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+            return res.status(401).json({
+                status: 401,
+                error: 'Unauthorized: Missing token'
+            });
         }
 
         let userId = parseInt(req.params.userId)
@@ -85,7 +91,8 @@ let userController = {
 
     update: (req, res, next) => {
         if (!req.headers.authorization) {
-            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+            return res.status(401).json({  status: 401,
+                error: 'Unauthorized: Missing token' });
         }
 
         const userId = parseInt(req.params.userId);
@@ -118,7 +125,8 @@ let userController = {
 
     delete: (req, res, next) => {
         if (!req.headers.authorization) {
-            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+            return res.status(401).json({  status: 401,
+                error: 'Unauthorized: Missing token' });
         }
 
         const userId = parseInt(req.params.userId);
@@ -168,7 +176,7 @@ let userController = {
         });
     },
 
- 
+
 
 }
 

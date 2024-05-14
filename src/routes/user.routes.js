@@ -174,6 +174,11 @@ const getMealParticipants = () => {
 }
 
 // Userroutes
+router.get("/", (req, res) => {
+    res.redirect("/api/info");
+
+})
+
 router.get('/api/info', (req, res) => {
     res.json({
         studentName: 'Nick Thanh Phong Nguyen',

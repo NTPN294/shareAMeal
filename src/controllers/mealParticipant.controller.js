@@ -8,10 +8,13 @@ let mealParticipantController = {
     create: (req, res, next) => {
         const token = req.headers.authorization;
         if (!token) {
-            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+            return res.status(401).json({
+                status: 401,
+                error: 'Unauthorized: Missing token'
+            });
         }
 
-        const userId = parseInt(req.headers.id); 
+        const userId = parseInt(req.headers.id);
         const mealId = parseInt(req.params.mealId)
         const mealParticipant = {
             userId: userId,
@@ -38,13 +41,19 @@ let mealParticipantController = {
     delete: (req, res, next) => {
         const token = req.headers.authorization;
         if (!token) {
-            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+            return res.status(401).json({
+                status: 401,
+                error: 'Unauthorized: Missing token'
+            });
         }
 
-        const userId = parseInt(req.headers.id); 
+        const userId = parseInt(req.headers.id);
 
         if (userId !== jwtUtil.getUserId(token)) {
-            return res.status(401).json({ error: 'Unauthorized: Not a participant of this meal' });
+            return res.status(401).json({
+                status: 401,
+                error: 'Unauthorized: Not a participant of this meal'
+            });
         }
 
         const mealId = parseInt(req.params.mealId)
@@ -73,15 +82,21 @@ let mealParticipantController = {
     getMealParticipants: (req, res, next) => {
         const token = req.headers.authorization;
         if (!token) {
-            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+            return res.status(401).json({
+                status: 401,
+                error: 'Unauthorized: Missing token'
+            });
         }
         const userId = jwtUtil.getUserId(token);
 
         const mealId = parseInt(req.params.mealId)
         const cook = database._data.meals.find(meal => meal.id === mealId).cookId
-        
+
         if (userId !== cook) {
-            return res.status(401).json({ error: 'Unauthorized: Not the cook of this meal' });
+            return res.status(401).json({
+                status: 401,
+                error: 'Unauthorized: Not the cook of this meal'
+            });
         }
 
 
@@ -108,22 +123,28 @@ let mealParticipantController = {
     getMealParticipantsByUserId: (req, res, next) => {
         const token = req.headers.authorization;
         if (!token) {
-            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+            return res.status(401).json({
+                status: 401,
+                error: 'Unauthorized: Missing token'
+            });
         }
 
-        const userId = parseInt(req.params.participantId); 
+        const userId = parseInt(req.params.participantId);
         const mealId = parseInt(req.params.mealId)
         const userIdToken = jwtUtil.getUserId(token);
 
         const cook = database._data.meals.find(meal => meal.id === mealId).cookId
-        
+
         if (userIdToken !== cook) {
-            return res.status(401).json({ error: 'Unauthorized: Not the cook of this meal' });
+            return res.status(401).json({
+                status: 401,
+                error: 'Unauthorized: Not the cook of this meal'
+            });
         }
-    
+
         logger.info('get mealParticipants for meal', mealId, 'and user', userId)
 
-        mealParticipantService.getMealParticipantsByUserId(mealId,userId, (error, success) => {
+        mealParticipantService.getMealParticipantsByUserId(mealId, userId, (error, success) => {
             if (error) {
                 return next({
                     status: error.status,

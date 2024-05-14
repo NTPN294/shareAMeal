@@ -3,19 +3,25 @@ const logger = require('../util/logger');
 
 const jwtUtil = {
     generate: (data) => {
-        return jwt.sign({data}, process.env.JWT_SECRET, {
-            expiresIn: '2h' 
+        return jwt.sign({ data }, process.env.JWT_SECRET, {
+            expiresIn: '2h'
         });
     },
 
     authenticate: (req, res, next) => { // Make sure to include req, res, next parameters
         if (!req.headers.authorization) {
-            return res.status(401).json({ error: 'Unauthorized: Missing token, please log in at api/login with a valid [emailAdress] and [password]' });
+            return res.status(401).json({
+                status: 401,
+                error: 'Unauthorized: Missing token, please log in at api/login with a valid [emailAdress] and [password]'
+            });
         }
         const token = req.headers.authorization.split(' ')[1];
 
         if (!token) {
-            return res.status(401).json({ error: 'Unauthorized: Missing token, please log in at api/login with a valid [emailAdress] and [password]' });
+            return res.status(401).json({
+                status: 401,
+                error: 'Unauthorized: Missing token, please log in at api/login with a valid [emailAdress] and [password]'
+            });
         }
 
         jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
@@ -27,11 +33,11 @@ const jwtUtil = {
         });
     },
 
-    getUserId: (token,res) => {
+    getUserId: (token, res) => {
         const token2 = token.split(' ')[1];
         const decoded2 = jwt.decode(token2);
         return decoded2.data.id;
-      
+
     }
 };
 
