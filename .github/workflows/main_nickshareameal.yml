@@ -13,6 +13,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      DB_HOST: "db-mysql-ams3-46626-do-user-8155278-0.b.db.ondigitalocean.com"
+      DB_PORT: 25060
+      DB_USER: 2223623
+      DB_DATABASE: 2223623
+      DB_PASSWORD: "secret"
+
     steps:
       - uses: actions/checkout@v4
 
