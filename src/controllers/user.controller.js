@@ -1,10 +1,12 @@
 const userService = require('../services/user.service')
 const logger = require('../util/logger')
 const jwtUtil = require('../controllers/jwtUtil')
+const bcrypt = require('bcrypt')
 
 let userController = {
     create: (req, res, next) => {
         const user = req.body
+        user.password = bcrypt.hashSync(user.password, 10)
         logger.info('create user', user.firstName, user.lastName)
         userService.create(user, (error, success) => {
             if (error) {
@@ -104,7 +106,8 @@ let userController = {
             });
         }
 
-        const updatedFields = req.body;
+        let updatedFields = req.body;
+        updatedFields.password = bcrypt.hashSync(updatedFields.password, 10);
         logger.info('Update user with ID:', userId);
         userService.updateUser(userId, updatedFields, (error, success) => {
             if (error) {

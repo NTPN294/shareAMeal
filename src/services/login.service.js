@@ -2,9 +2,9 @@ const database = require('../dao/inmem-db')
 const logger = require('../util/logger')
 
 const loginService = {
-    login: (emailAdress, password, callback) => {
+    login: (emailAdress, callback) => {
         logger.info(`login ${emailAdress}`)
-        database.login(emailAdress, password, (err, data) => {
+        database.login(emailAdress, (err, data) => {
             if (err) {
                 logger.info(
                     'error login: ',

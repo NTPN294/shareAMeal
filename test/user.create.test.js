@@ -3,11 +3,26 @@ const chaiHttp = require('chai-http')
 const server = require('../index')
 const tracer = require('tracer')
 const mysql = require('../src/dao/mySql')
+const jwt = require('../src/controllers/jwtUtil');
 
 
 chai.should()
 chai.use(chaiHttp)
 tracer.setLevel('warn')
+const userrr = {
+    id: 129,
+        firstName: "Voornaam2",
+        lastName: "Achternaam2",
+        isActive: 1,
+        emailAdress: "v.achterAAAAw@example.com",
+        password: "$2b$10$V75t35PBeIBE1P63H0fc.ulSL0IUXIOdKVJhpDs1/J/ehkbMXzVOy",
+        phoneNumber: "0612345678",
+        roles: "editor,guest",
+        street: "123 Main St2",
+        city: "Cityville2"
+}
+const authString = jwt.generate(userrr)
+console.log(authString)
 
 //=========================================================================================================
 function generateRandomLetters(length) {
@@ -60,7 +75,7 @@ describe('UC-101 inloggen', () => {
                 emailAdress: "a.blabla@bestaat.nl",
                 password: "Passw0rd2"
             }).end((err, res) => {
-                res.should.have.status(404)
+                res.should.have.status(401)
                 res.body.should.be.a('object')
                 res.body.should.have.property('message').equals('User not found')
                 done()
@@ -71,12 +86,12 @@ describe('UC-101 inloggen', () => {
         chai.request(server)
             .post('/api/login')
             .send({
-                emailAdress: "v.achterNieuw@example.com",
+                emailAdress: "v.achterAAAAw@example.com",
                 password: "Passw0rd2"
             }).end((err, res) => {
                 res.should.have.status(200)
                 res.body.should.be.a('object')
-                res.body.should.have.property('message').equals('User logged in with id 1.')
+                res.body.should.have.property('message').equals('User logged in with id 129.')
                 done()
             })
     })
@@ -227,7 +242,7 @@ describe('UC-202 Opvragen van overzicht van users', () => {
     it('TC-202-1 Toon alle gebruikers (minimaal 2)', (done) => {
         chai.request(server)
             .get("/api/user")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .end((err, res) => {
                 res.should.have.status(200)
                 res.body.should.be.a('object')
@@ -240,7 +255,7 @@ describe('UC-202 Opvragen van overzicht van users', () => {
     it('TC-202-3 Toon gebruikers met gebruik van de zoekterm op het veld ‘isActive’=false', (done) => {
         chai.request(server)
             .get("/api/user")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .end((err, res) => {
                 res.should.have.status(200)
                 res.body.should.be.a('object')
@@ -252,7 +267,7 @@ describe('UC-202 Opvragen van overzicht van users', () => {
     it('TC-202-4 Toon gebruikers met gebruik van de zoekterm op het veld ‘isActive’=true', (done) => {
         chai.request(server)
             .get("/api/user")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .end((err, res) => {
                 res.should.have.status(200)
                 res.body.should.be.a('object')
@@ -279,11 +294,11 @@ describe('UC-203 opvragen van gebruikers profiel', () => {
     it('TC-203-2 Gebruiker ingelogd met geldig token', (done) => {
         chai.request(server)
             .get("/api/user/profile")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .end((err, res) => {
                 res.should.have.status(200)
                 res.body.should.be.a('object')
-                res.body.should.have.property('message').equals(`Found user with id 1`)
+                res.body.should.have.property('message').equals(`Found user with id 129`)
                 done()
             })
     })
@@ -305,7 +320,7 @@ describe('UC-204 Opvragen van usergegevens bij ID', () => {
     it('TC-204-2 Gebruiker-ID bestaat niet', (done) => {
         chai.request(server)
             .get("/api/user/999")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .end((err, res) => {
                 res.should.have.status(404)
                 res.body.should.be.a('object')
@@ -318,7 +333,7 @@ describe('UC-204 Opvragen van usergegevens bij ID', () => {
     it('TC-204-3 Gebruiker-ID bestaat', (done) => {
         chai.request(server)
             .get("/api/user/1")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .end((err, res) => {
                 res.should.have.status(200)
                 res.body.should.be.a('object')
@@ -335,7 +350,7 @@ describe('UC-205 Updaten van usergegevens', () => {
     it('TC-205-1 Verplicht veld “emailAdress” ontbreekt', (done) => {
         chai.request(server)
             .put("/api/user/1")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .send({
                 firstName: "Voornaam2",
                 lastName: "Achternaam2",
@@ -357,12 +372,12 @@ describe('UC-205 Updaten van usergegevens', () => {
     it('TC-205-2 De Gebruiker is niet de eigenaar van de date', (done) => {
         chai.request(server)
             .put("/api/user/2")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .send({
                 firstName: "Voornaam2",
                 lastName: "Achternaam2",
                 password: "Passw0rd2",
-                emailAdress: "v.achterNieuws@example.com",
+                emailAdress: "v.achterAAAAw@example.com",
                 phoneNumber: "0612345678",
                 street: "123 Main St2",
                 city: "Cityville2",
@@ -379,7 +394,7 @@ describe('UC-205 Updaten van usergegevens', () => {
     it('TC-205-3 Niet-valide telefoonnummer', (done) => {
         chai.request(server)
             .put("/api/user/1")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .send({
                 firstName: "Voornaam2",
                 lastName: "Achternaam2",
@@ -402,7 +417,7 @@ describe('UC-205 Updaten van usergegevens', () => {
     it('TC-205-4 Gebruiker bestaat niet', (done) => {
         chai.request(server)
             .put("/api/user/999")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .send({
                 firstName: "Voornaam2",
                 lastName: "Achternaam2",
@@ -446,13 +461,13 @@ describe('UC-205 Updaten van usergegevens', () => {
 
     it('TC-205-6 Gebruiker succesvol gewijzigd', (done) => {
         chai.request(server)
-            .put("/api/user/1")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .put("/api/user/129")
+            .set('Authorization', 'Bearer ' + authString)
             .send({
                 firstName: "Voornaam2",
                 lastName: "Achternaam2",
                 password: "Passw0rd2",
-                emailAdress: "v.achterNieuw@example.com",
+                emailAdress: "v.achterAAAAw@example.com",
                 phoneNumber: "0612345678",
                 street: "123 Main St2",
                 city: "Cityville2",
@@ -461,7 +476,7 @@ describe('UC-205 Updaten van usergegevens', () => {
             .end((err, res) => {
                 res.should.have.status(200)
                 res.body.should.be.a('object')
-                res.body.should.have.property('message').equals('User with id 1 updated.')
+                res.body.should.have.property('message').equals('User with id 129 updated.')
 
                 done()
             })
@@ -474,7 +489,7 @@ describe('UC-206 Verwijderen van user', () => {
     it('TC-206-1 Gebruiker bestaat niet', (done) => {
         chai.request(server)
             .delete("/api/user/999")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .end((err, res) => {
                 res.should.have.status(403)
                 res.body.should.have.property('message').equals('Forbidden: You are not allowed to delete this user')
@@ -498,7 +513,7 @@ describe('UC-206 Verwijderen van user', () => {
     it('TC-206-3 De Gebruiker is niet de eigenaar van de date', (done) => {
         chai.request(server)
             .delete("/api/user/2")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .end((err, res) => {
                 res.should.have.status(403)
                 res.body.should.be.a('object')
@@ -573,7 +588,7 @@ describe('UC-301 Toevoegen van maaltijd', () => {
     it('TC-301-3 Succesvol maaltijd toegevoegd', (done) => {
         chai.request(server)
             .post("/api/meal")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .send({
                 name: "Delicious Pastaaaaaaaaaaaaaaaaaaa",
                 description: "A mouth-watering pasta dish",
@@ -620,7 +635,7 @@ describe('UC-302 wijzigen van maaltijdsgegevens', () => {
 
     it('TC-302-2 Niet ingelogd', (done) => {
         chai.request(server)
-            .put("/api/meal/1")
+            .put("/api/meal/63")
             .send({
                 name: "Delicious Pastaaaaaaaaaaaaaaaaaaa",
                 description: "A mouth-watering pasta dish",
@@ -648,7 +663,7 @@ describe('UC-302 wijzigen van maaltijdsgegevens', () => {
     it('TC-302-3 Niet de eigenaar van de data', (done) => {
         chai.request(server)
             .put("/api/meal/5")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .send({
                 name: "Delicious Pastaaaaaaaaaaaaaaaaaaa",
                 description: "A mouth-watering pasta dish",
@@ -676,7 +691,7 @@ describe('UC-302 wijzigen van maaltijdsgegevens', () => {
     it('TC-302-4 Maaltijd bestaat niet', (done) => {
         chai.request(server)
             .put("/api/meal/666")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .send({
                 name: "Delicious Pastaaaaaaaaaaaaaaaaaaa",
                 description: "A mouth-watering pasta dish",
@@ -702,8 +717,8 @@ describe('UC-302 wijzigen van maaltijdsgegevens', () => {
 
     it('TC-302-5 Maaltijd succesvol gewijzigd', (done) => {
         chai.request(server)
-            .put("/api/meal/1")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .put("/api/meal/63")
+            .set('Authorization', 'Bearer ' + authString)
             .send({
                 name: "Delicious Pastaaaaaaaaaaaaaaaaaaa",
                 description: "A mouth-watering pasta dish",
@@ -722,7 +737,7 @@ describe('UC-302 wijzigen van maaltijdsgegevens', () => {
             .end((err, res) => {
                 res.should.have.status(200)
                 res.body.should.be.a('object')
-                res.body.should.have.property('message').equals('Updated meal with id 1.')
+                res.body.should.have.property('message').equals('Updated meal with id 63.')
                 done()
             })
 
@@ -735,7 +750,7 @@ describe("UC-303 Maaltijd retourneren", () => {
     it('TC-303-1 Lijst geretourneerd', (done) => {
         chai.request(server)
             .get("/api/meal")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .end((err, res) => {
                 res.should.have.status(200)
                 res.body.should.have.property('message')
@@ -749,7 +764,7 @@ describe('TC-304 Opvragen van maaltijd bij id', () => {
     it('TC-304-1 Maaltijd bestaat niet', (done) => {
         chai.request(server)
             .get("/api/meal/999")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .end((err, res) => {
                 res.should.have.status(404)
                 res.body.should.have.property('message').equals('Meal with id 999 not found')
@@ -761,7 +776,7 @@ describe('TC-304 Opvragen van maaltijd bij id', () => {
     it('TC-304-2 maaltijd geretourneerd', (done) => {
         chai.request(server)
             .get("/api/meal/1")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .end((err, res) => {
                 res.should.have.status(200)
                 res.body.should.have.property('message').equals('Found meal with id 1.')
@@ -786,7 +801,7 @@ describe('TC-305 verwijderen van maaltijd', () => {
     it('TC-305-2 Niet de eigenaar van de data', (done) => {
         chai.request(server)
         .delete("/api/meal/5")
-        .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+        .set('Authorization', 'Bearer ' + authString)
         .end((err, res) => {
             res.should.have.status(401)
             res.body.should.have.property('error').equals('Unauthorized: Not the cook of this meal')
@@ -798,7 +813,7 @@ describe('TC-305 verwijderen van maaltijd', () => {
     it('TC-305-3 Maaltijd bestaat niet', (done) => {
         chai.request(server)
             .delete("/api/meal/999")
-            .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+            .set('Authorization', 'Bearer ' + authString)
             .end((err, res) => {
                 res.should.have.status(404)
                 res.body.should.have.property('message').equals('Meal with id 999 not found')
@@ -827,7 +842,7 @@ describe('UC-401 Aanmelden maaltijd', () => {
     it('TC-401-2 Maaltijd bestaat niet', (done) => {
         chai.request(server)
         .post("/api/meal/999/participate")
-        .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+        .set('Authorization', 'Bearer ' + authString)
         .end((err, res) => {
             res.should.have.status(404)
             res.body.should.have.property('message').equals('Meal with id 999 not found')
@@ -840,7 +855,7 @@ describe('UC-401 Aanmelden maaltijd', () => {
 
         chai.request(server)
         .post("/api/meal/5/participate")
-        .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+        .set('Authorization', 'Bearer ' + authString)
         .set('id', 1)
         .end((err, res) => {
             res.should.have.status(200)
@@ -853,7 +868,7 @@ describe('UC-401 Aanmelden maaltijd', () => {
     it('TC-401-4 maximum aanmeldingen', (done) => {
         chai.request(server)
         .post("/api/meal/1/participate")
-        .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+        .set('Authorization', 'Bearer ' + authString)
         .set('id', 1)
         .end((err, res) => {
             res.should.have.status(200)
@@ -879,7 +894,7 @@ describe("UC-402 Afmelden maaltijd", () => {
     it('TC-402-2 maaltijd bestaat niet', (done) => {
         chai.request(server)
         .delete("/api/meal/999/participate")
-        .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+        .set('Authorization', 'Bearer ' + authString)
         .end((err, res) => {
             res.should.have.status(401)
             res.body.should.have.property('error').equals('Unauthorized: Not a participant of this meal')
@@ -891,7 +906,7 @@ describe("UC-402 Afmelden maaltijd", () => {
     it('TC-403-3 aanmelding bestaat niet', (done) => {
         chai.request(server)
         .delete("/api/meal/999/participate")
-        .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+        .set('Authorization', 'Bearer ' + authString)
         .end((err, res) => {
             res.should.have.status(401)
             res.body.should.have.property('error').equals('Unauthorized: Not a participant of this meal')
@@ -903,7 +918,7 @@ describe("UC-402 Afmelden maaltijd", () => {
     it.skip('TC-402-4 succesvol afgemeld', (done) => {
         chai.request(server)
         .delete("/api/meal/5/participate")
-        .set('Authorization', 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJmaXJzdE5hbWUiOiJWb29ybmFhbTIiLCJsYXN0TmFtZSI6IkFjaHRlcm5hYW0yIiwiaXNBY3RpdmUiOjEsImVtYWlsQWRyZXNzIjoidi5hY2h0ZXJOaWV1d0BleGFtcGxlLmNvbSIsInBhc3N3b3JkIjoiUGFzc3cwcmQyIiwicGhvbmVOdW1iZXIiOiIwNjEyMzQ1Njc4Iiwicm9sZXMiOiIiLCJzdHJlZXQiOiIxMjMgTWFpbiBTdDIiLCJjaXR5IjoiQ2l0eXZpbGxlMiJ9LCJpYXQiOjE3MTU3MTQzMTksImV4cCI6MTcxNTcyMTUxOX0.4NDMKRPabjRf9Wa0qYq_P-_gvzx8JVMhXq8JwLN5f0E")
+        .set('Authorization', 'Bearer ' + authString)
        .set("id", 1)
         .end((err, res) => {
             res.should.have.status(200)

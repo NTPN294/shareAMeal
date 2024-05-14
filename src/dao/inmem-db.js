@@ -146,15 +146,9 @@ let database = {
         }, this._delayTime);
     },
 
-    login(emailAdress, password, callback) {
+    login(emailAdress, callback) {
         setTimeout(() => {
-            if (emailAdress === undefined || password === undefined) {
-                const error = new Error('[emailAdress], [password] are required');
-                error.status = 400; // Bad Request
-                callback(error, null);
-                return;
-            }
-
+           
             const user = this._data.users.find(user => user.emailAdress === emailAdress);
             if (!user) {
                 const error = new Error('User not found');
@@ -162,14 +156,6 @@ let database = {
                 callback(error, null);
                 return;
             }
-
-            if (user.password !== password) {
-                const error = new Error('Invalid password');
-                error.status = 400;
-                callback(error, null);
-                return;
-            }
-
             callback(null, user);
         }, this._delayTime);
     },
