@@ -78,7 +78,6 @@ const validateMealCreateChaiExpect = (req, res, next) => {
         chai.expect(req.body.isToTakeHome, "missing or incorrect isToTakeHome field").to.be.a('boolean');
         chai.expect(req.body.maxAmountOfParticipants, "missing or incorrect maxAmountOfParticipants field").to.be.a('number');
         chai.expect(req.body.price, "missing or incorrect price field").to.be.a('number');
-        chai.expect(req.body.cookId, "missing or incorrect cookId field").to.be.a('number');
         chai.expect(req.body.allergenes, "missing or incorrect allergens field").to.be.a('string').and.not.empty;
 
 
@@ -93,6 +92,32 @@ const validateMealCreateChaiExpect = (req, res, next) => {
         });
     }
 }
+
+const validateLoginChaiExpect = (req, res, next) => {
+    try {
+        // Assert that all required fields exist and are of correct types
+        chai.expect(req.body.emailAdress, 'Missing or incorrect emailAdress field').to.be.a('string').and.not.empty;
+        chai.expect(req.body.password, 'Missing or incorrect password field').to.be.a('string').and.not.empty;
+
+        // Additional validations
+        if (!isValidEmailAdress(req.body.emailAdress)) {
+            throw new Error('Invalid email adress: j.doe@company.com format expected');
+        }
+        if (!isValidPassword(req.body.password)) {
+            throw new Error('Invalid password: Password must contain at least 8 characters, including at least 1 uppercase letter and 1 digit');
+        }
+        next();
+    }
+    catch (error) {
+        logger.trace('Login failed:', error.message);
+        next({
+            status: 400,
+            message: error.message,
+            data: {}
+        });
+    }
+}
+
 
 //==================================================
 // Middleware to load user and meal data
@@ -157,25 +182,25 @@ router.get('/api/info', (req, res) => {
     })
 })
 
-router.post('/api/login',loadData, loginController.login)
+router.post('/api/login', loadData, validateLoginChaiExpect, loginController.login)
 
-router.post('/api/user',loadData, validateUserCreateChaiExpect, userController.create)
-router.get('/api/user',loadData,jwtUtil.authenticate, userController.getAll)
-router.get('/api/user/:userId',loadData, userController.getById)
-router.put('/api/user/:userId',loadData, validateUserCreateChaiExpect, userController.update)
-router.delete('/api/user/:userId',loadData, userController.delete)
+router.post('/api/user', loadData, validateUserCreateChaiExpect, userController.create)
+router.get('/api/user', loadData, jwtUtil.authenticate, userController.getAll)
+router.get('/api/user/:userId', loadData, userController.getById)
+router.put('/api/user/:userId', loadData, validateUserCreateChaiExpect, userController.update)
+router.delete('/api/user/:userId', loadData, userController.delete)
 
 //========================================
-router.post('/api/meal',loadData,validateMealCreateChaiExpect, mealController.create)
-router.get('/api/meal',loadData, mealController.getAll)
-router.get('/api/meal/:mealId',loadData, mealController.getById)
-router.put('/api/meal/:mealId',loadData,validateMealCreateChaiExpect, mealController.update)
-router.delete('/api/meal/:mealId',loadData, mealController.delete)
+router.post('/api/meal', loadData, validateMealCreateChaiExpect, mealController.create)
+router.get('/api/meal', loadData, mealController.getAll)
+router.get('/api/meal/:mealId', loadData, mealController.getById)
+router.put('/api/meal/:mealId', loadData, validateMealCreateChaiExpect, mealController.update)
+router.delete('/api/meal/:mealId', loadData, mealController.delete)
 
 //===================================================
-router.post('/api/meal/:mealId/participate',loadData, mealParticipantController.create)
-router.delete('/api/meal/:mealId/participate',loadData, mealParticipantController.delete)
-router.get('/api/meal/:mealId/participate',loadData, mealParticipantController.getMealParticipants)
-router.get('/api/meal/:mealId/participate/:participantId',loadData, mealParticipantController.getMealParticipantsByUserId)
+router.post('/api/meal/:mealId/participate', loadData, mealParticipantController.create)
+router.delete('/api/meal/:mealId/participate', loadData, mealParticipantController.delete)
+router.get('/api/meal/:mealId/participate', loadData, mealParticipantController.getMealParticipants)
+router.get('/api/meal/:mealId/participate/:participantId', loadData, mealParticipantController.getMealParticipantsByUserId)
 
 module.exports = router

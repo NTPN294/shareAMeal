@@ -23,7 +23,7 @@ const mealParticipantService = {
                     message: `MealParticipant created with id ${data.userId} to meal ${data.mealId}.`,
                     data: data
                 })
-
+                console.log(mealParticipant.mealId, mealParticipant.userId )
                 mysql.addMealParticipant(mealParticipant.mealId, mealParticipant.userId)
 
             }

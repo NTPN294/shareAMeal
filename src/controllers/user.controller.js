@@ -56,7 +56,15 @@ let userController = {
     },
 
     getById: (req, res, next) => {
-        const userId = parseInt(req.params.userId)
+        if (!req.headers.authorization) {
+            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+        }
+
+        let userId = parseInt(req.params.userId)
+        if (isNaN(userId)) {
+            userId = jwtUtil.getUserId(req.headers.authorization);
+        }
+
         logger.trace('userController: getById', userId)
         userService.getById(userId, (error, success) => {
             if (error) {
@@ -76,7 +84,19 @@ let userController = {
     },
 
     update: (req, res, next) => {
+        if (!req.headers.authorization) {
+            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+        }
+
         const userId = parseInt(req.params.userId);
+        const tokenUserId = jwtUtil.getUserId(req.headers.authorization);
+        if (userId !== tokenUserId) {
+            return next({
+                status: 403,
+                message: 'Forbidden: You are not allowed to update this user'
+            });
+        }
+
         const updatedFields = req.body;
         logger.info('Update user with ID:', userId);
         userService.updateUser(userId, updatedFields, (error, success) => {
@@ -97,7 +117,19 @@ let userController = {
     },
 
     delete: (req, res, next) => {
+        if (!req.headers.authorization) {
+            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+        }
+
         const userId = parseInt(req.params.userId);
+        const tokenUserId = jwtUtil.getUserId(req.headers.authorization);
+        if (userId !== tokenUserId) {
+            return next({
+                status: 403,
+                message: 'Forbidden: You are not allowed to delete this user'
+            });
+        }
+
         logger.info('Delete user with ID:', userId);
         userService.deleteUser(userId, (error, success) => {
             if (error) {
@@ -134,7 +166,9 @@ let userController = {
                 });
             }
         });
-    }
+    },
+
+ 
 
 }
 

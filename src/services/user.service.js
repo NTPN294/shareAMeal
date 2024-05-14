@@ -114,7 +114,9 @@ const userService = {
                 mySql.updateUser(userId, updatedFields)
             }
         });
-    }
+    },
+
+  
 };
 
 module.exports = userService

@@ -19,7 +19,7 @@ let loginController = {
             }
             if (success) {
 
-                const token = jwt.generate(emailAdress);            
+                const token = jwt.generate(success.data);            
 
                 res.status(200).json({
                     status: success.status,

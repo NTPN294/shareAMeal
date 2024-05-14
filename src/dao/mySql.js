@@ -1,13 +1,14 @@
 const mysql = require('mysql');
 const logger = require('../util/logger');
 const database2 = require('../dao/inmem-db');
+require('dotenv').config();
 
 
-const host = process.env.DB_HOST || "db-mysql-ams3-46626-do-user-8155278-0.b.db.ondigitalocean.com";
-const port = process.env.DB_PORT || 25060;
-const user = process.env.DB_USER || 2223623;
-const database = process.env.DB_DATABASE || 2223623;
-const password = process.env.DB_PASSWORD || "secret";
+const host = process.env.DB_HOST;
+const port = process.env.DB_PORT;
+const user = process.env.DB_USER;
+const database = process.env.DB_DATABASE;
+const password = process.env.DB_PASSWORD;
 
 // Maak een MySQL connection pool
 const pool = mysql.createPool({
@@ -225,7 +226,7 @@ const mySQL = {
     });
   },
 
-  addMeal: (meal) => {
+  addMeal: (meal,cookId) => {
     // Get a connection from the pool
     pool.getConnection((err, connection) => {
       if (err) {
@@ -246,7 +247,7 @@ const mySQL = {
         meal.maxAmountOfParticipants,
         meal.price,
         meal.imageUrl,
-        meal.cookId,
+        cookId,
         new Date(),
         meal.allergenes,
         new Date()
@@ -269,7 +270,7 @@ const mySQL = {
     });
   },
 
-  updateMeal: (mealId, updatedFields) => {
+  updateMeal: (mealId, updatedFields, cookId) => {
     // Get a connection from the pool
     pool.getConnection((err, connection) => {
       if (err) {
@@ -290,7 +291,7 @@ const mySQL = {
         updatedFields.maxAmountOfParticipants,
         updatedFields.price,
         updatedFields.imageUrl,
-        updatedFields.cookId,
+        cookId,
         updatedFields.allergenes,
         new Date(),
         mealId

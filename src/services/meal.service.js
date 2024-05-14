@@ -3,7 +3,7 @@ const logger = require('../util/logger')
 const mysql = require('../dao/mySql')
 
 const mealService = {
-    create:(meal, callback) => {
+    create:(meal, cookId, callback) => {
         logger.info('create meal', meal)
 
         database.addMeal(meal, (err, data) => {
@@ -23,7 +23,7 @@ const mealService = {
                     message: `Meal created with id ${data.id}.`,
                     data: data
                 })
-                mysql.addMeal(meal)
+                mysql.addMeal(meal, cookId)
             }
         })
     },
@@ -120,7 +120,7 @@ const mealService = {
         })
     },
 
-    updateMeal:(mealId, updatedFields, callback) => {
+    updateMeal:(mealId, updatedFields,cookId, callback) => {
         logger.info(`update meal with id ${mealId}`)
 
         if (isNaN(mealId)) {
@@ -160,7 +160,7 @@ const mealService = {
                 message: `Updated meal with id ${mealId}.`,
                 data: data
             })
-            mysql.updateMeal(mealId, updatedFields)
+            mysql.updateMeal(mealId, updatedFields,cookId)
         })
     }
 }
