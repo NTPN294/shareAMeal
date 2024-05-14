@@ -68,7 +68,7 @@ let mealController = {
         const mealId = parseInt(req.params.mealId)
         const meal = req.body
         logger.info('update meal', mealId)
-        mealService.update(mealId, meal, (error, success) => {
+        mealService.updateMeal(mealId, meal, (error, success) => {
             if (error) {
                 return next({
                     status: error.status,

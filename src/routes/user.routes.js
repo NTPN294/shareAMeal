@@ -5,8 +5,11 @@ chai.should()
 const router = express.Router()
 const userController = require('../controllers/user.controller')
 const mealController = require('../controllers/meal.controller')
+const loginController = require('../controllers/login.controller')
+
 const logger = require('../util/logger')
-const mysql = require('../dao/mySql')
+const mySql = require('../dao/mySql')
+const database = require('../dao/inmem-db')
 
 
 //functions =========================================
@@ -62,9 +65,36 @@ const validateUserCreateChaiExpect = (req, res, next) => {
     }
 }
 
+const validateMealCreateChaiExpect = (req, res, next) => {
+    try {
+        // Assert that all required fields exist and are of correct types
+        chai.expect(req.body.name, "missing or incorrect name field").to.be.a('string').and.not.empty;
+        chai.expect(req.body.description, "missing or incorrect description field").to.be.a('string').and.not.empty;
+        chai.expect(req.body.isActive, "missing or incorrect isActive field").to.be.a('boolean');
+        chai.expect(req.body.isVega, "missing or incorrect isVega field").to.be.a('boolean');
+        chai.expect(req.body.isVegan, "missing or incorrect isVegan field").to.be.a('boolean');
+        chai.expect(req.body.isToTakeHome, "missing or incorrect isToTakeHome field").to.be.a('boolean');
+        chai.expect(req.body.maxAmountOfParticipants, "missing or incorrect maxAmountOfParticipants field").to.be.a('number');
+        chai.expect(req.body.price, "missing or incorrect price field").to.be.a('number');
+        chai.expect(req.body.cookId, "missing or incorrect cookId field").to.be.a('number');
+        chai.expect(req.body.allergenes, "missing or incorrect allergens field").to.be.a('string').and.not.empty;
+
+
+        logger.trace('Meal successfully validated');
+        next(); // Move to the next middleware
+    } catch (error) {
+        logger.trace('Meal validation failed:', error.message);
+        next({
+            status: 400,
+            message: error.message,
+            data: {}
+        });
+    }
+}
+
 //==================================================
 // Middleware to load user and meal data
-const refreshData = async (req, res, next) => {
+const loadData = async (req, res, next) => {
     try {
         const users = await getUsers();
         const meals = await getMeals();
@@ -76,10 +106,10 @@ const refreshData = async (req, res, next) => {
     }
 };
 
-// Function to retrieve users from database (promisified version)
+// Function to retrieve users from database 
 const getUsers = () => {
     return new Promise((resolve, reject) => {
-        mysql.getUsers((err, data) => {
+        mySql.getUsers((err, data) => {
             if (err) {
                 reject(err);
             } else {
@@ -89,10 +119,10 @@ const getUsers = () => {
     });
 };
 
-// Function to retrieve meals from database (promisified version)
+// Function to retrieve meals from database
 const getMeals = () => {
     return new Promise((resolve, reject) => {
-        mysql.getMeals((err, data) => {
+        mySql.getMeals((err, data) => {
             if (err) {
                 reject(err);
             } else {
@@ -111,19 +141,19 @@ router.get('/api/info', (req, res) => {
     })
 })
 
-router.post('/api/login', userController.login)
+router.post('/api/login',loadData, loginController.login)
 
-router.post('/api/user',refreshData, validateUserCreateChaiExpect, userController.create)
-router.get('/api/user',refreshData, userController.getAll)
-router.get('/api/user/:userId',refreshData, userController.getById)
-router.put('/api/user/:userId',refreshData, validateUserCreateChaiExpect, userController.update)
-router.delete('/api/user/:userId',refreshData, userController.delete)
+router.post('/api/user',loadData, validateUserCreateChaiExpect, userController.create)
+router.get('/api/user',loadData, userController.getAll)
+router.get('/api/user/:userId',loadData, userController.getById)
+router.put('/api/user/:userId',loadData, validateUserCreateChaiExpect, userController.update)
+router.delete('/api/user/:userId',loadData, userController.delete)
 
 //========================================
-router.post('/api/meal',refreshData, mealController.create)
-router.get('/api/meal',refreshData, mealController.getAll)
-router.get('/api/meal/:mealId',refreshData, mealController.getById)
-router.put('/api/meal/:mealId',refreshData, mealController.update)
-router.delete('/api/meal/:mealId',refreshData, mealController.delete)
+router.post('/api/meal',loadData,validateMealCreateChaiExpect, mealController.create)
+router.get('/api/meal',loadData, mealController.getAll)
+router.get('/api/meal/:mealId',loadData, mealController.getById)
+router.put('/api/meal/:mealId',loadData,validateMealCreateChaiExpect, mealController.update)
+router.delete('/api/meal/:mealId',loadData, mealController.delete)
 
 module.exports = router

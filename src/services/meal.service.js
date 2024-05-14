@@ -86,6 +86,16 @@ const mealService = {
             return;
         }
 
+        database.getByIdMeal(mealId, (err, data) => { 
+            if (!data) {
+                const error = new Error(`Meal with id ${mealId} not found`);
+                error.status = 404; // Set the status code to 404 for Not Found
+                callback(error, null);
+                return;
+            }
+
+        })
+
         database.deleteMeal(mealId, (err, data) => {
             if (err) {
                 const error = new Error(`Error deleting meal with id ${mealId}`);
@@ -119,6 +129,16 @@ const mealService = {
             callback(error, null);
             return;
         }
+
+        database.getByIdMeal(mealId, (err, data) => { 
+            if (!data) {
+                const error = new Error(`Meal with id ${mealId} not found`);
+                error.status = 404; // Set the status code to 404 for Not Found
+                callback(error, null);
+                return;
+            }
+
+        })
 
         database.updateMeal(mealId, updatedFields, (err, data) => {
             if (err) {

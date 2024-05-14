@@ -1,6 +1,6 @@
 const database = require('../dao/inmem-db')
 const logger = require('../util/logger')
-const mysql = require('../dao/mySql')
+const mySql = require('../dao/mySql')
 
 const userService = {
     create: (user, callback) => {
@@ -25,7 +25,7 @@ const userService = {
                     message: `User created with id ${data.id}.`,
                     data: data
                 })
-                mysql.addUser(user)
+                mySql.addUser(user)
             }
         })
 
@@ -92,7 +92,7 @@ const userService = {
                     message: message,
                     data: deletedUser
                 });
-                mysql.deleteUser(userId)
+                mySql.deleteUser(userId)
             }
         });
     },
@@ -111,44 +111,9 @@ const userService = {
                     message: message,
                     data: updatedUser
                 });
-                mysql.updateUser(userId, updatedFields)
+                mySql.updateUser(userId, updatedFields)
             }
         });
-    },
-
-    login: (email, password, callback) => {
-        logger.info(`Logging in user with email ${email}.`);
-        database.getByEmailUser(email, (err, user) => {
-            if (err) {
-                logger.error(`Error logging in user with email ${email}:`, err.message || 'Unknown error');
-                callback(err, null);
-            } else if (!user) {
-                const message = `User with email ${email} not found.`;
-                logger.trace(message);
-                callback(null, {
-                    status: 404,
-                    message: message,
-                    data: null
-                });
-            } else if (user.password !== password) {
-                const message = `Incorrect password for user with email ${email}.`;
-                logger.trace(message);
-                callback(null, {
-                    status: 400,
-                    message: message,
-                    data: null
-                });
-            } else {
-                const message = `User with email ${email} logged in.`;
-                logger.trace(message);
-                callback(null, {
-                    status: 200,
-                    message: message,
-                    data: user
-                });
-            }
-        });
-
     }
 };
 

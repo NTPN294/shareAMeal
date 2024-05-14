@@ -1,7 +1,8 @@
 let database = {
     _data: [{
         users: [{}],
-        meals: [{}] 
+        meals: [{}],
+        mealParticipants: [{}] 
     }],
     _delayTime: 250,
 
@@ -114,8 +115,9 @@ let database = {
 
     updateMeal(id, updatedFields, callback) {
         setTimeout(() => {
-            const mealIndex = this._data.meals.findIndex(meal => meal.id === id);
 
+            const mealIndex = this._data.meals.findIndex(meal => meal.id === id);
+            
             if (mealIndex === -1) {
                 const error = new Error(`Meal with id ${id} not found`);
                 error.status = 404; // Not Found
@@ -140,6 +142,34 @@ let database = {
                 error.status = 404; // Set the status code to 400 for Bad Request
                 callback(error, null);
             }
+        }, this._delayTime);
+    },
+
+    login(emailAdress, password, callback){
+        setTimeout(() => {
+            if (emailAdress === undefined || password === undefined) {
+                const error = new Error('[emailAdress], [password] are required');
+                error.status = 400; // Bad Request
+                callback(error, null);
+                return;
+            }
+
+            const user = this._data.users.find(user => user.emailAdress === emailAdress);
+            if (!user) {
+                const error = new Error('User not found');
+                error.status = 404; // Not Found
+                callback(error, null);
+                return;
+            }
+
+            if (user.password !== password) {
+                const error = new Error('Invalid password');
+                error.status = 400;
+                callback(error, null);
+                return;
+            }
+
+            callback(null, user);
         }, this._delayTime);
     }
 

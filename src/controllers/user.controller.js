@@ -1,5 +1,6 @@
 const userService = require('../services/user.service')
 const logger = require('../util/logger')
+const jwtUtil = require('../controllers/jwtUtil')
 
 let userController = {
     create: (req, res, next) => {
@@ -23,26 +24,35 @@ let userController = {
     },
 
     getAll: (req, res, next) => {
-        logger.trace('getAll')
-        userService.getAll((error, success) => {
-            if (error) {
-                return next({
-                    status: error.status,
-                    message: error.message,
-                })
-            }
-            if (success) {
-                res.status(200).json({
-                    status: success.status,
-                    message: success.message,
-                    data: {users: success.data,
-                        activeUsers: success.data.filter(user => user.isActive),
-                        inActiveUsers: success.data.filter(user => !user.isActive)
-                    }
-                   
-                })
-            }
-        })
+        const token = req.headers.authorization;
+        if (!token) {
+            return res.status(401).json({ error: 'Unauthorized: Missing token' });
+        }
+
+        // Authenticate user before proceeding to retrieve all users
+        jwtUtil.authenticate(req, res, () => {
+            // Authentication successful, proceed with retrieving all users
+            logger.trace('getAll');
+            userService.getAll((error, success) => {
+                if (error) {
+                    return next({
+                        status: error.status,
+                        message: error.message,
+                    });
+                }
+                if (success) {
+                    res.status(200).json({
+                        status: success.status,
+                        message: success.message,
+                        data: {
+                            users: success.data,
+                            activeUsers: success.data.filter(user => user.isActive),
+                            inActiveUsers: success.data.filter(user => !user.isActive)
+                        }
+                    });
+                }
+            });
+        });
     },
 
     getById: (req, res, next) => {
