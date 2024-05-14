@@ -4,12 +4,13 @@ const logger = require('../util/logger');
 const jwtUtil = {
     generate: (emailAdress) => {
         return jwt.sign({ emailAdress }, process.env.JWT_SECRET, {
-            expiresIn: '1h' 
+            expiresIn: '2h' 
         });
     },
 
     authenticate: (req, res, next) => { // Make sure to include req, res, next parameters
         const token = req.headers.authorization;
+        console.log(req.headers);
 
         if (!token) {
             return res.status(401).json({ error: 'Unauthorized: Missing token, please log in at api/login with a valid [emailAdress] and [password]' });

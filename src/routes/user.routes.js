@@ -6,10 +6,12 @@ const router = express.Router()
 const userController = require('../controllers/user.controller')
 const mealController = require('../controllers/meal.controller')
 const loginController = require('../controllers/login.controller')
+const mealParticipantController = require('../controllers/mealParticipant.controller')
 
 const logger = require('../util/logger')
 const mySql = require('../dao/mySql')
 const database = require('../dao/inmem-db')
+const jwtUtil = require('../controllers/jwtUtil')
 
 
 //functions =========================================
@@ -98,7 +100,8 @@ const loadData = async (req, res, next) => {
     try {
         const users = await getUsers();
         const meals = await getMeals();
-        req.customData = { users, meals }; // Attach data to request object
+        const mealParticipants = await getMealParticipants();
+        req.customData = { users, meals, mealParticipants }; // Attach data to request object
         next();
     } catch (error) {
         logger.error('Error refreshing data:', error);
@@ -132,6 +135,19 @@ const getMeals = () => {
     });
 };
 
+const getMealParticipants = () => {
+    return new Promise((resolve, reject) => {
+        mySql.getMealParticipants((err, data) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
+    });
+
+}
+
 // Userroutes
 router.get('/api/info', (req, res) => {
     res.json({
@@ -144,7 +160,7 @@ router.get('/api/info', (req, res) => {
 router.post('/api/login',loadData, loginController.login)
 
 router.post('/api/user',loadData, validateUserCreateChaiExpect, userController.create)
-router.get('/api/user',loadData, userController.getAll)
+router.get('/api/user',loadData,jwtUtil.authenticate, userController.getAll)
 router.get('/api/user/:userId',loadData, userController.getById)
 router.put('/api/user/:userId',loadData, validateUserCreateChaiExpect, userController.update)
 router.delete('/api/user/:userId',loadData, userController.delete)
@@ -155,5 +171,11 @@ router.get('/api/meal',loadData, mealController.getAll)
 router.get('/api/meal/:mealId',loadData, mealController.getById)
 router.put('/api/meal/:mealId',loadData,validateMealCreateChaiExpect, mealController.update)
 router.delete('/api/meal/:mealId',loadData, mealController.delete)
+
+//===================================================
+router.post('/api/meal/:mealId/participate',loadData, mealParticipantController.create)
+router.delete('/api/meal/:mealId/participate',loadData, mealParticipantController.delete)
+router.get('/api/meal/:mealId/participate',loadData, mealParticipantController.getMealParticipants)
+router.get('/api/meal/:mealId/participate/:participantId',loadData, mealParticipantController.getMealParticipantsByUserId)
 
 module.exports = router

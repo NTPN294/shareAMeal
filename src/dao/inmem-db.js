@@ -1,10 +1,11 @@
+
 let database = {
     _data: [{
         users: [{}],
         meals: [{}],
-        mealParticipants: [{}] 
+        mealParticipants: [{}]
     }],
-    _delayTime: 250,
+    _delayTime: 500,
 
     getAllUser(callback) {
         setTimeout(() => {
@@ -117,7 +118,7 @@ let database = {
         setTimeout(() => {
 
             const mealIndex = this._data.meals.findIndex(meal => meal.id === id);
-            
+
             if (mealIndex === -1) {
                 const error = new Error(`Meal with id ${id} not found`);
                 error.status = 404; // Not Found
@@ -145,7 +146,7 @@ let database = {
         }, this._delayTime);
     },
 
-    login(emailAdress, password, callback){
+    login(emailAdress, password, callback) {
         setTimeout(() => {
             if (emailAdress === undefined || password === undefined) {
                 const error = new Error('[emailAdress], [password] are required');
@@ -170,6 +171,92 @@ let database = {
             }
 
             callback(null, user);
+        }, this._delayTime);
+    },
+
+    //=========================================================================================================
+    getMealParticipants(mealId, callback) {
+        setTimeout(() => {
+            const mealParticipant = this._data.mealParticipants.filter(mealParticipant => mealParticipant.mealId === mealId);
+
+            const users = [];
+            mealParticipant.forEach(participant => {
+                const user = this._data.users.find(user => user.id === participant.userId);
+                delete user.password;
+                users.push(user);
+            })
+
+            console.log(users)
+            callback(null, users);
+
+        }, this._delayTime);
+    },
+
+    getMealParticipantsByUserId(mealId, userId, callback) {
+        setTimeout(() => {
+            const mealParticipant = this._data.mealParticipants.find(mealParticipant => mealParticipant.mealId === mealId && mealParticipant.userId === userId);
+            if (!mealParticipant) {
+                const error = new Error(`MealParticipant with userId ${userId} and mealId ${mealId} not found`);
+                error.status = 404; // Set the status code to 400 for Bad Request
+                callback(error, null);
+                return;
+            }
+
+            const user = this._data.users.find(user => user.id === mealParticipant.userId);
+
+            console.log(user)
+            callback(null, user);
+
+        }, this._delayTime);
+    },
+
+    addMealParticipant(item, callback) {
+        setTimeout(() => {
+            console.log(item.mealId)
+
+            const existMeal = this._data.meals.find(meal => meal.id === item.mealId);
+
+            if (!existMeal) {
+                const error = new Error(`Meal with id ${item.mealId} not found`);
+                error.status = 404; // Set the status code to 400 for Bad Request
+                callback(error, null);
+                return;
+            }
+
+            const exist = this._data.mealParticipants.find(mealParticipant => mealParticipant.userId === item.userId && mealParticipant.mealId === item.mealId);
+            if (exist) {
+                const error = new Error(`User with id ${item.userId} already joined meal with id ${item.mealId}`);
+                error.status = 400; // Set the status code to 400 for Bad Request
+                callback(error, null);
+                return;
+            }
+
+            const meal = this._data.meals.find(meal => meal.id === item.mealId);
+            const participantCount = this._data.mealParticipants.filter(mealParticipant => mealParticipant.mealId === item.mealId).length;
+            if (participantCount >= meal.maxAmountOfParticipants) {
+                const error = new Error(`Meal with id ${item.mealId} is full`);
+                error.status = 200; // Set the status code to 400 for Bad Request
+                callback(error, null);
+                return;
+            }
+
+
+            this._data.mealParticipants.push(item);
+            callback(null, item);
+        }, this._delayTime);
+    },
+
+    deleteMealParticipant(item, callback) {
+        setTimeout(() => {
+            const index = this._data.mealParticipants.findIndex(mealParticipant => mealParticipant.userId === item.userId && mealParticipant.mealId === item.mealId);
+            if (index !== -1) {
+                const deletedMealParticipant = this._data.mealParticipants.splice(index, 1)[0]; // Remove the meal at the found index
+                callback(null, deletedMealParticipant);
+            } else {
+                const error = new Error(`MealParticipant with userId ${item.userId} and mealId ${item.mealId} not found`);
+                error.status = 404; // Set the status code to 400 for Bad Request
+                callback(error, null);
+            }
         }, this._delayTime);
     }
 

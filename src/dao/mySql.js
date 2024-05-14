@@ -394,8 +394,8 @@ const mySQL = {
       // Execute a SELECT query to retrieve data from a table
       const query = 'INSERT INTO meal_participants_user (mealId, userId) VALUES (?,?)';
       const values = [
-        mealId,
-        userId
+        parseInt(mealId),
+        parseInt(userId)
       ];
       // Execute the SQL query
       connection.query(query, values, (err, results) => {

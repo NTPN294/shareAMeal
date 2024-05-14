@@ -2,7 +2,6 @@ const loginService = require('../services/login.service')
 const logger = require('../util/logger')
 const jwt = require('./jwtUtil');
 require('dotenv').config();
-const axios = require('axios');
 
 
 let loginController = {
@@ -20,20 +19,7 @@ let loginController = {
             }
             if (success) {
 
-                const token = jwt.generate(emailAdress);
-
-                axios.get('/api/user', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                    .then(response => {
-                        console.log(response.data);
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-
+                const token = jwt.generate(emailAdress);            
 
                 res.status(200).json({
                     status: success.status,
