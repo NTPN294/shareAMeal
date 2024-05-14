@@ -226,7 +226,7 @@ const mySQL = {
     });
   },
 
-  addMeal: (meal,cookId) => {
+  addMeal: (meal, cookId) => {
     // Get a connection from the pool
     pool.getConnection((err, connection) => {
       if (err) {
@@ -371,8 +371,8 @@ const mySQL = {
 
         // Map MySQL results to the format expected by the database object
         const meal_participants_users = results.map((row) => ({
-         mealId: row.mealId,
-         userId: row.userId,
+          mealId: row.mealId,
+          userId: row.userId,
         }));
 
         // Replace the existing data in the database object with retrieved users
@@ -384,7 +384,7 @@ const mySQL = {
     });
   },
 
-  addMealParticipant:(mealId, userId) => {
+  addMealParticipant: (mealId, userId) => {
     // Get a connection from the pool
     pool.getConnection((err, connection) => {
       if (err) {
